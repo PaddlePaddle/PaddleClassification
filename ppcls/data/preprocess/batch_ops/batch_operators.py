@@ -16,8 +16,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+import random
+
 import numpy as np
 
+from ppcls.utils import logger
 from ppcls.data.preprocess.ops.fmix import sample_mask
 
 
@@ -46,36 +49,49 @@ class BatchOperator(object):
 
 
 class MixupOperator(BatchOperator):
-    """Mixup and Cutmix operator"""
+    """ Mixup operator """
 
-    def __init__(self,
-                 mixup_alpha: float=1.,
-                 cutmix_alpha: float=0.,
-                 switch_prob: float=0.5):
+    def __init__(self, alpha: float=1.):
         """Build Mixup operator
 
         Args:
-            mixup_alpha (float, optional): The parameter alpha of mixup, mixup is active if > 0. Defaults to 1..
-            cutmix_alpha (float, optional): The parameter alpha of cutmix, cutmix is active if > 0. Defaults to 0..
-            switch_prob (float, optional): The probability of switching to cutmix instead of mixup when both are active. Defaults to 0.5.
+            alpha (float, optional): The parameter alpha of mixup. Defaults to 1..
 
         Raises:
-            Exception: The value of parameters are illegal.
+            Exception: The value of parameter is illegal.
         """
-        if mixup_alpha <= 0 and cutmix_alpha <= 0:
+        if alpha <= 0:
             raise Exception(
-                f"At least one of parameter alpha of Mixup and Cutmix is greater than 0. mixup_alpha: {mixup_alpha}, cutmix_alpha: {cutmix_alpha}"
+                f"Parameter \"alpha\" of Mixup should be greater than 0. \"alpha\": {alpha}."
             )
-        self._mixup_alpha = mixup_alpha
-        self._cutmix_alpha = cutmix_alpha
-        self._switch_prob = switch_prob
+        self._alpha = alpha
 
-    def _mixup(self, imgs, labels, bs):
+    def __call__(self, batch):
+        imgs, labels, bs = self._unpack(batch)
         idx = np.random.permutation(bs)
-        lam = np.random.beta(self._mixup_alpha, self._mixup_alpha)
+        lam = np.random.beta(self._alpha, self._alpha)
         lams = np.array([lam] * bs, dtype=np.float32)
         imgs = lam * imgs + (1 - lam) * imgs[idx]
         return list(zip(imgs, labels, labels[idx], lams))
+
+
+class CutmixOperator(BatchOperator):
+    """ Cutmix operator """
+
+    def __init__(self, alpha=0.2):
+        """Build Cutmix operator
+
+        Args:
+            alpha (float, optional): The parameter alpha of cutmix. Defaults to 0.2.
+
+        Raises:
+            Exception: The value of parameter is illegal.
+        """
+        if alpha <= 0:
+            raise Exception(
+                f"Parameter \"alpha\" of Cutmix should be greater than 0. \"alpha\": {alpha}."
+            )
+        self._alpha = alpha
 
     def _rand_bbox(self, size, lam):
         """ _rand_bbox """
@@ -96,9 +112,10 @@ class MixupOperator(BatchOperator):
 
         return bbx1, bby1, bbx2, bby2
 
-    def _cutmix(self, imgs, labels, bs):
+    def __call__(self, batch):
+        imgs, labels, bs = self._unpack(batch)
         idx = np.random.permutation(bs)
-        lam = np.random.beta(self._cutmix_alpha, self._cutmix_alpha)
+        lam = np.random.beta(self._alpha, self._alpha)
 
         bbx1, bby1, bbx2, bby2 = self._rand_bbox(imgs.shape, lam)
         imgs[:, :, bbx1:bbx2, bby1:bby2] = imgs[idx, :, bbx1:bbx2, bby1:bby2]
@@ -106,20 +123,6 @@ class MixupOperator(BatchOperator):
                    (imgs.shape[-2] * imgs.shape[-1]))
         lams = np.array([lam] * bs, dtype=np.float32)
         return list(zip(imgs, labels, labels[idx], lams))
-
-    def __call__(self, batch):
-        imgs, labels, bs = self._unpack(batch)
-        if np.random.rand() < self._switch_prob:
-            return self._cutmix(imgs, labels, bs)
-        else:
-            return self._mixup(imgs, labels, bs)
-
-
-class CutmixOperator(BatchOperator):
-    def __init__(self, **kwargs):
-        raise Exception(
-            f"\"CutmixOperator\" has been deprecated. Please use MixupOperator with \"cutmix_alpha\" and \"switch_prob\" to enable Cutmix. Refor to doc for details."
-        )
 
 
 class FmixOperator(BatchOperator):
@@ -139,3 +142,42 @@ class FmixOperator(BatchOperator):
                 size, self._max_soft, self._reformulate)
         imgs = mask * imgs + (1 - mask) * imgs[idx]
         return list(zip(imgs, labels, labels[idx], [lam] * bs))
+
+
+class OpSampler(object):
+    """ Sample a operator from  """
+
+    def __init__(self, **op_dict):
+        """Build OpSampler
+
+        Raises:
+            Exception: The parameter \"prob\" of operator(s) are be set error.
+        """
+        if len(op_dict) < 1:
+            msg = f"ConfigWarning: No operator in \"OpSampler\". \"OpSampler\" has been skipped."
+
+        self.ops = {}
+        total_prob = 0
+        for op_name in op_dict:
+            param = op_dict[op_name]
+            if "prob" not in param:
+                msg = f"ConfigWarning: Parameter \"prob\" should be set when use operator in \"OpSampler\". The operator \"{op_name}\"'s prob has been set \"0\"."
+                logger.warning(msg)
+            prob = param.pop("prob", 0)
+            total_prob += prob
+            op = eval(op_name)(**param)
+            self.ops[op] = prob
+
+        if total_prob > 1:
+            msg = f"ConfigError: The total prob of operators in \"OpSampler\" should be less 1."
+            logger.error(msg)
+            raise Exception(msg)
+
+        # add "None Op" when total_prob < 1, "None Op" do nothing
+        self.ops[None] = 1 - total_prob
+
+    def __call__(self, batch):
+        op = random.choices(
+            list(self.ops.keys()), weights=list(self.ops.values()), k=1)[0]
+        # return batch directly when None Op
+        return op(batch) if op else batch
