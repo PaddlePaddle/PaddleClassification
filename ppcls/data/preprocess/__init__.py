@@ -14,6 +14,7 @@
 
 from ppcls.data.preprocess.ops.autoaugment import ImageNetPolicy as RawImageNetPolicy
 from ppcls.data.preprocess.ops.randaugment import RandAugment as RawRandAugment
+from ppcls.data.preprocess.ops.timm_autoaugment import RawTimmAutoAugment
 from ppcls.data.preprocess.ops.cutout import Cutout
 
 from ppcls.data.preprocess.ops.hide_and_seek import HideAndSeek
@@ -31,7 +32,6 @@ from ppcls.data.preprocess.ops.operators import AugMix
 
 from ppcls.data.preprocess.batch_ops.batch_operators import MixupOperator, CutmixOperator, FmixOperator
 
-import six
 import numpy as np
 from PIL import Image
 
@@ -45,21 +45,16 @@ def transform(data, ops=[]):
 
 class AutoAugment(RawImageNetPolicy):
     """ ImageNetPolicy wrapper to auto fit different img types """
+
     def __init__(self, *args, **kwargs):
-        if six.PY2:
-            super(AutoAugment, self).__init__(*args, **kwargs)
-        else:
-            super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __call__(self, img):
         if not isinstance(img, Image.Image):
             img = np.ascontiguousarray(img)
             img = Image.fromarray(img)
 
-        if six.PY2:
-            img = super(AutoAugment, self).__call__(img)
-        else:
-            img = super().__call__(img)
+        img = super().__call__(img)
 
         if isinstance(img, Image.Image):
             img = np.asarray(img)
@@ -69,21 +64,35 @@ class AutoAugment(RawImageNetPolicy):
 
 class RandAugment(RawRandAugment):
     """ RandAugment wrapper to auto fit different img types """
+
     def __init__(self, *args, **kwargs):
-        if six.PY2:
-            super(RandAugment, self).__init__(*args, **kwargs)
-        else:
-            super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __call__(self, img):
         if not isinstance(img, Image.Image):
             img = np.ascontiguousarray(img)
             img = Image.fromarray(img)
 
-        if six.PY2:
-            img = super(RandAugment, self).__call__(img)
-        else:
-            img = super().__call__(img)
+        img = super().__call__(img)
+
+        if isinstance(img, Image.Image):
+            img = np.asarray(img)
+
+        return img
+
+
+class TimmAutoAugment(RawTimmAutoAugment):
+    """ TimmAutoAugment wrapper to auto fit different img tyeps. """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, img):
+        if not isinstance(img, Image.Image):
+            img = np.ascontiguousarray(img)
+            img = Image.fromarray(img)
+
+        img = super().__call__(img)
 
         if isinstance(img, Image.Image):
             img = np.asarray(img)

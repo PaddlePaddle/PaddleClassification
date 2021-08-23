@@ -25,6 +25,7 @@ import random
 import cv2
 import numpy as np
 from PIL import Image
+from paddle.vision.transforms import ColorJitter as RawColorJitter
 
 from .autoaugment import ImageNetPolicy
 from .functional import augmentations
@@ -313,3 +314,20 @@ class AugMix(object):
 
         mixed = (1 - m) * image + m * mix
         return mixed.astype(np.uint8)
+
+
+class ColorJitter(RawColorJitter):
+    """ColorJitter.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __call__(self, img):
+        if not isinstance(img, Image.Image):
+            img = np.ascontiguousarray(img)
+            img = Image.fromarray(img)
+        img = super()._apply_image(img)
+        if isinstance(img, Image.Image):
+            img = np.asarray(img)
+        return img
