@@ -54,8 +54,9 @@ def create_operators(params):
 
 
 def build_dataloader(config, mode, device, use_dali=False, seed=None):
-    assert mode in ['Train', 'Eval', 'Test', 'Gallery', 'Query'
-                    ], "Mode should be Train, Eval, Test, Gallery, Query"
+    assert mode in [
+        'Train', 'Eval', 'Test', 'Gallery', 'Query'
+    ], "Dataset mode should be Train, Eval, Test, Gallery, Query"
     # build dataset
     if use_dali:
         from ppcls.data.dataloader.dali import dali_dataloader

@@ -23,10 +23,15 @@ from ppcls.utils import logger
 def retrieval_eval(evaler, epoch_id=0):
     evaler.model.eval()
     # step1. build gallery
-    gallery_feas, gallery_img_id, gallery_unique_id = cal_feature(
-        evaler, name='gallery')
-    query_feas, query_img_id, query_query_id = cal_feature(
-        evaler, name='query')
+    if evaler.gallery_query_dataloader is not None:
+        gallery_feas, gallery_img_id, gallery_unique_id = cal_feature(
+            evaler, name='gallery_query')
+        query_feas, query_img_id, query_query_id = gallery_feas, gallery_img_id, gallery_unique_id
+    else:
+        gallery_feas, gallery_img_id, gallery_unique_id = cal_feature(
+            evaler, name='gallery')
+        query_feas, query_img_id, query_query_id = cal_feature(
+            evaler, name='query')
 
     # step2. do evaluation
     sim_block_size = evaler.config["Global"].get("sim_block_size", 64)
@@ -93,6 +98,8 @@ def cal_feature(evaler, name='gallery'):
         dataloader = evaler.gallery_dataloader
     elif name == 'query':
         dataloader = evaler.query_dataloader
+    elif name == 'gallery_query':
+        dataloader = evaler.gallery_query_dataloader
     else:
         raise RuntimeError("Only support gallery or query dataset")
 
@@ -124,7 +131,7 @@ def cal_feature(evaler, name='gallery'):
             feas_norm = paddle.sqrt(
                 paddle.sum(paddle.square(batch_feas), axis=1, keepdim=True))
             batch_feas = paddle.divide(batch_feas, feas_norm)
-            
+
         # do binarize
         if evaler.config["Global"].get("feature_binarize") == "round":
             batch_feas = paddle.round(batch_feas).astype("float32") * 2.0 - 1.0
@@ -142,10 +149,10 @@ def cal_feature(evaler, name='gallery'):
             all_image_id = paddle.concat([all_image_id, batch[1]])
             if has_unique_id:
                 all_unique_id = paddle.concat([all_unique_id, batch[2]])
-                
+
     if evaler.use_dali:
         dataloader_tmp.reset()
-        
+
     if paddle.distributed.get_world_size() > 1:
         feat_list = []
         img_id_list = []
