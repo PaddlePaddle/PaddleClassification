@@ -8,3 +8,4 @@ visualdl >= 2.0.0b
 scipy
 scikit-learn==0.23.2
 gast==0.3.3
+faiss-cpu==1.7.1

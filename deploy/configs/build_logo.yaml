@@ -26,11 +26,11 @@ RecPostProcess: null
 
 # indexing engine config
 IndexProcess:
-  index_path: "./recognition_demo_data_v1.0/gallery_logo/index/"
+  index_method: "HNSW32" # supported: HNSW32, IVF, Flat
+  index_dir: "./recognition_demo_data_v1.0/gallery_logo/index/"
   image_root: "./recognition_demo_data_v1.0/gallery_logo/"
   data_file:  "./recognition_demo_data_v1.0/gallery_logo/data_file.txt"
-  append_index: False
+  index_operation: "new" # suported: "append", "remove", "new"
   delimiter: "\t"
   dist_type: "IP"
-  pq_size: 100
   embedding_size: 512

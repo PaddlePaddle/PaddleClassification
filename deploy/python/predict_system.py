@@ -1,6 +1,6 @@
 # Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the "License"); 
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -20,10 +20,11 @@ sys.path.append(os.path.abspath(os.path.join(__dir__, '../')))
 import copy
 import cv2
 import numpy as np
+import faiss
+import pickle
 
 from python.predict_rec import RecPredictor
 from python.predict_det import DetPredictor
-from vector_search import Graph_Index
 
 from utils import logger
 from utils import config
@@ -40,11 +41,16 @@ class SystemPredictor(object):
 
         assert 'IndexProcess' in config.keys(), "Index config not found ... "
         self.return_k = self.config['IndexProcess']['return_k']
-        self.search_budget = self.config['IndexProcess']['search_budget']
 
-        self.Searcher = Graph_Index(
-            dist_type=config['IndexProcess']['dist_type'])
-        self.Searcher.load(config['IndexProcess']['index_path'])
+        index_dir = self.config["IndexProcess"]["index_dir"]
+        assert os.path.exists(os.path.join(
+            index_dir, "vector.index")), "vector.index not found ..."
+        assert os.path.exists(os.path.join(
+            index_dir, "id_map.pkl")), "id_map.pkl not found ... "
+        self.Searcher = faiss.read_index(
+            os.path.join(index_dir, "vector.index"))
+        with open(os.path.join(index_dir, "id_map.pkl"), "rb") as fd:
+            self.id_map = pickle.load(fd)
 
     def append_self(self, results, shape):
         results.append({
@@ -98,14 +104,11 @@ class SystemPredictor(object):
             crop_img = img[ymin:ymax, xmin:xmax, :].copy()
             rec_results = self.rec_predictor.predict(crop_img)
             preds["bbox"] = [xmin, ymin, xmax, ymax]
-            scores, docs = self.Searcher.search(
-                query=rec_results,
-                return_k=self.return_k,
-                search_budget=self.search_budget)
+            scores, docs = self.Searcher.search(rec_results, self.return_k)
             # just top-1 result will be returned for the final
-            if scores[0] >= self.config["IndexProcess"]["score_thres"]:
-                preds["rec_docs"] = docs[0]
-                preds["rec_scores"] = scores[0]
+            if scores[0][0] >= self.config["IndexProcess"]["score_thres"]:
+                preds["rec_docs"] = self.id_map[docs[0][0]].split()[1]
+                preds["rec_scores"] = scores[0][0]
                 output.append(preds)
 
         # st5: nms to the final results to avoid fetching duplicate results

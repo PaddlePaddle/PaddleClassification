@@ -50,8 +50,6 @@ RecPostProcess: null
 
 # indexing engine config
 IndexProcess:
-  index_path: "./recognition_demo_data_v1.0/gallery_product/index"
-  search_budget: 100
+  index_dir: "./recognition_demo_data_v1.0/gallery_product/index"
   return_k: 5
-  dist_type: "IP"
   score_thres: 0.5

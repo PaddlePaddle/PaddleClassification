@@ -1,5 +1,7 @@
 # Vector search
 
+**Attention**: Due to the system adaptability problem, this retrieval algorithm will be abandoned in the new version. [faiss](https://github.com/facebookresearch/faiss) will be used in the new version. The use process of the overall retrieval system base will remain unchanged, but the yaml files for build indexes and retrieval will be modified.
+
 ## 1. Introduction
 
 Some vertical domain recognition tasks (e.g., vehicles, commodities, etc.) require a large number of recognized categories, and often use a retrieval-based approach to obtain matching predicted categories by performing a fast nearest neighbor search with query vectors and underlying library vectors. The vector search module provides the basic approximate nearest neighbor search algorithm based on Baidu's self-developed Möbius algorithm, a graph-based approximate nearest neighbor search algorithm for maximum inner product search (MIPS). This module provides python interface, supports numpy and tensor type vectors, and supports L2 and Inner Product distance calculation.
@@ -57,7 +59,7 @@ brew install gcc
 1. If prompted with `Error: Running Homebrew as root is extremely dangerous and no longer supported... `, refer to this [link](https://jingyan.baidu.com/article/e52e3615057a2840c60c519c.html)
 2.  If prompted with `Error: Failure while executing; tar --extract --no-same-owner --file... `, refer to this [link](https://blog.csdn.net/Dawn510/article/details/117787358).
 
-After installation the compiled executable is copied under /usr/local/bin, look at the gcc in this folder: 
+After installation the compiled executable is copied under /usr/local/bin, look at the gcc in this folder:
 
 ```
 ls /usr/local/bin/gcc*
