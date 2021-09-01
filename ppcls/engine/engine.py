@@ -175,7 +175,7 @@ class Engine(object):
         if self.mode == 'train':
             self.optimizer, self.lr_sch = build_optimizer(
                 self.config["Optimizer"], self.config["Global"]["epochs"],
-                len(self.train_dataloader), self.model.parameters())
+                len(self.train_dataloader), [self.model])
 
         # for distributed
         self.config["Global"][

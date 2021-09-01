@@ -35,14 +35,15 @@ class Momentum(object):
                  weight_decay=None,
                  grad_clip=None,
                  multi_precision=False):
-        super(Momentum, self).__init__()
+        super().__init__()
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.weight_decay = weight_decay
         self.grad_clip = grad_clip
         self.multi_precision = multi_precision
 
-    def __call__(self, parameters):
+    def __call__(self, model_list):
+        parameters = sum([m.parameters() for m in model_list], [])
         opt = optim.Momentum(
             learning_rate=self.learning_rate,
             momentum=self.momentum,
@@ -77,7 +78,8 @@ class Adam(object):
         self.lazy_mode = lazy_mode
         self.multi_precision = multi_precision
 
-    def __call__(self, parameters):
+    def __call__(self, model_list):
+        parameters = sum([m.parameters() for m in model_list], [])
         opt = optim.Adam(
             learning_rate=self.learning_rate,
             beta1=self.beta1,
@@ -112,7 +114,7 @@ class RMSProp(object):
                  weight_decay=None,
                  grad_clip=None,
                  multi_precision=False):
-        super(RMSProp, self).__init__()
+        super().__init__()
         self.learning_rate = learning_rate
         self.momentum = momentum
         self.rho = rho
@@ -120,7 +122,8 @@ class RMSProp(object):
         self.weight_decay = weight_decay
         self.grad_clip = grad_clip
 
-    def __call__(self, parameters):
+    def __call__(self, model_list):
+        parameters = sum([m.parameters() for m in model_list], [])
         opt = optim.RMSProp(
             learning_rate=self.learning_rate,
             momentum=self.momentum,
@@ -130,3 +133,57 @@ class RMSProp(object):
             grad_clip=self.grad_clip,
             parameters=parameters)
         return opt
+
+
+class AdamW(object):
+    def __init__(self,
+                 learning_rate=0.001,
+                 beta1=0.9,
+                 beta2=0.999,
+                 epsilon=1e-8,
+                 weight_decay=None,
+                 multi_precision=False,
+                 grad_clip=None,
+                 no_weight_decay_name=None,
+                 one_dim_param_no_weight_decay=False,
+                 **args):
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.beta1 = beta1
+        self.beta2 = beta2
+        self.epsilon = epsilon
+        self.grad_clip = grad_clip
+        self.weight_decay = weight_decay
+        self.multi_precision = multi_precision
+        self.no_weight_decay_name_list = no_weight_decay_name.split(
+        ) if no_weight_decay_name else []
+        self.one_dim_param_no_weight_decay = one_dim_param_no_weight_decay
+
+    def __call__(self, model_list):
+        parameters = sum([m.parameters() for m in model_list], [])
+
+        self.no_weight_decay_param_name_list = [
+            p.name for model in model_list for n, p in model.named_parameters()
+            if any(nd in n for nd in self.no_weight_decay_name_list)
+        ]
+
+        if self.one_dim_param_no_weight_decay:
+            self.no_weight_decay_param_name_list += [
+                p.name for model in model_list
+                for n, p in model.named_parameters() if len(p.shape) == 1
+            ]
+
+        opt = optim.AdamW(
+            learning_rate=self.learning_rate,
+            beta1=self.beta1,
+            beta2=self.beta2,
+            epsilon=self.epsilon,
+            parameters=parameters,
+            weight_decay=self.weight_decay,
+            multi_precision=self.multi_precision,
+            grad_clip=self.grad_clip,
+            apply_decay_param_fun=self._apply_decay_param_fun)
+        return opt
+
+    def _apply_decay_param_fun(self, name):
+        return name not in self.no_weight_decay_param_name_list

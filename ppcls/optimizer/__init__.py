@@ -41,19 +41,22 @@ def build_lr_scheduler(lr_config, epochs, step_each_epoch):
     return lr
 
 
-def build_optimizer(config, epochs, step_each_epoch, parameters=None):
+def build_optimizer(config, epochs, step_each_epoch, model_list):
     config = copy.deepcopy(config)
     # step1 build lr
     lr = build_lr_scheduler(config.pop('lr'), epochs, step_each_epoch)
     logger.debug("build lr ({}) success..".format(lr))
     # step2 build regularization
     if 'regularizer' in config and config['regularizer'] is not None:
+        if 'weight_decay' in config:
+            logger.warning(
+                "ConfigError: Only one of regularizer and weight_decay can be set in Optimizer Config. \"weight_decay\" has been ignored."
+            )
         reg_config = config.pop('regularizer')
         reg_name = reg_config.pop('name') + 'Decay'
         reg = getattr(paddle.regularizer, reg_name)(**reg_config)
-    else:
-        reg = None
-    logger.debug("build regularizer ({}) success..".format(reg))
+        config["weight_decay"] = reg
+        logger.debug("build regularizer ({}) success..".format(reg))
     # step3 build optimizer
     optim_name = config.pop('name')
     if 'clip_norm' in config:
@@ -62,8 +65,7 @@ def build_optimizer(config, epochs, step_each_epoch, parameters=None):
     else:
         grad_clip = None
     optim = getattr(optimizer, optim_name)(learning_rate=lr,
-                                           weight_decay=reg,
                                            grad_clip=grad_clip,
-                                           **config)(parameters=parameters)
+                                           **config)(model_list=model_list)
     logger.debug("build optimizer ({}) success..".format(optim))
     return optim, lr
