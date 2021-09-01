@@ -42,6 +42,7 @@ from ppcls.data import create_operators
 from ppcls.engine.train import train_epoch
 from ppcls.engine import evaluation
 from ppcls.arch.gears.identity_head import IdentityHead
+from ppcls.engine.slim import get_pruner, get_quaner
 
 
 class Engine(object):
@@ -170,6 +171,8 @@ class Engine(object):
                     self.model, self.config["Global"]["pretrained_model"])
 
         # for slim
+        self.pruner = get_pruner(self.config, self.model)
+        self.quanter = get_quaner(self.config, self.model)
 
         # build optimizer
         if self.mode == 'train':
@@ -334,18 +337,26 @@ class Engine(object):
                                   self.config["Global"]["pretrained_model"])
 
         model.eval()
-
-        model = paddle.jit.to_static(
-            model,
-            input_spec=[
-                paddle.static.InputSpec(
-                    shape=[None] + self.config["Global"]["image_shape"],
-                    dtype='float32')
-            ])
-        paddle.jit.save(
-            model,
-            os.path.join(self.config["Global"]["save_inference_dir"],
-                         "inference"))
+        save_path = os.path.join(self.config["Global"]["save_inference_dir"],
+                                 "inference")
+        if self.quanter:
+            self.quanter.save_quantized_model(
+                model,
+                save_path,
+                input_spec=[
+                    paddle.static.InputSpec(
+                        shape=[None] + self.config["Global"]["image_shape"],
+                        dtype='float32')
+                ])
+        else:
+            model = paddle.jit.to_static(
+                model,
+                input_spec=[
+                    paddle.static.InputSpec(
+                        shape=[None] + self.config["Global"]["image_shape"],
+                        dtype='float32')
+                ])
+            paddle.jit.save(model, save_path)
 
 
 class ExportModel(nn.Layer):

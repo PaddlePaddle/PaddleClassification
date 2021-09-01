@@ -162,7 +162,7 @@ class MobileNetV3(TheseusLayer):
             if_act=True,
             act="hardswish")
 
-        self.blocks = nn.Sequential(*[
+        self.blocks = nn.Sequential(* [
             ResidualUnit(
                 in_c=_make_divisible(self.inplanes * self.scale if i == 0 else
                                      self.cfg[i - 1][2] * self.scale),
@@ -333,6 +333,8 @@ class SEModule(TheseusLayer):
             stride=1,
             padding=0)
         self.hardsigmoid = Hardsigmoid(slope=0.2, offset=0.5)
+        self.conv1.skip_quant = True
+        self.conv2.skip_quant = True
 
     def forward(self, x):
         identity = x
