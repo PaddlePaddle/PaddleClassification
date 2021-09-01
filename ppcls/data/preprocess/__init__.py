@@ -29,7 +29,7 @@ from ppcls.data.preprocess.ops.operators import NormalizeImage
 from ppcls.data.preprocess.ops.operators import ToCHWImage
 from ppcls.data.preprocess.ops.operators import AugMix
 
-from ppcls.data.preprocess.batch_ops.batch_operators import MixupOperator, CutmixOperator, FmixOperator
+from ppcls.data.preprocess.batch_ops.batch_operators import MixupOperator, CutmixOperator, OpSampler, FmixOperator
 
 import six
 import numpy as np
@@ -45,6 +45,7 @@ def transform(data, ops=[]):
 
 class AutoAugment(RawImageNetPolicy):
     """ ImageNetPolicy wrapper to auto fit different img types """
+
     def __init__(self, *args, **kwargs):
         if six.PY2:
             super(AutoAugment, self).__init__(*args, **kwargs)
@@ -69,6 +70,7 @@ class AutoAugment(RawImageNetPolicy):
 
 class RandAugment(RawRandAugment):
     """ RandAugment wrapper to auto fit different img types """
+
     def __init__(self, *args, **kwargs):
         if six.PY2:
             super(RandAugment, self).__init__(*args, **kwargs)

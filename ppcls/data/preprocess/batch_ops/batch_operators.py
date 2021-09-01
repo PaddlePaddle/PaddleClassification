@@ -16,13 +16,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
+import random
+
 import numpy as np
 
+from ppcls.utils import logger
 from ppcls.data.preprocess.ops.fmix import sample_mask
 
 
 class BatchOperator(object):
     """ BatchOperator """
+
     def __init__(self, *args, **kwargs):
         pass
 
@@ -46,9 +50,20 @@ class BatchOperator(object):
 
 class MixupOperator(BatchOperator):
     """ Mixup operator """
-    def __init__(self, alpha=0.2):
-        assert alpha > 0., \
-                'parameter alpha[%f] should > 0.0' % (alpha)
+
+    def __init__(self, alpha: float=1.):
+        """Build Mixup operator
+
+        Args:
+            alpha (float, optional): The parameter alpha of mixup. Defaults to 1..
+
+        Raises:
+            Exception: The value of parameter is illegal.
+        """
+        if alpha <= 0:
+            raise Exception(
+                f"Parameter \"alpha\" of Mixup should be greater than 0. \"alpha\": {alpha}."
+            )
         self._alpha = alpha
 
     def __call__(self, batch):
@@ -62,9 +77,20 @@ class MixupOperator(BatchOperator):
 
 class CutmixOperator(BatchOperator):
     """ Cutmix operator """
+
     def __init__(self, alpha=0.2):
-        assert alpha > 0., \
-                'parameter alpha[%f] should > 0.0' % (alpha)
+        """Build Cutmix operator
+
+        Args:
+            alpha (float, optional): The parameter alpha of cutmix. Defaults to 0.2.
+
+        Raises:
+            Exception: The value of parameter is illegal.
+        """
+        if alpha <= 0:
+            raise Exception(
+                f"Parameter \"alpha\" of Cutmix should be greater than 0. \"alpha\": {alpha}."
+            )
         self._alpha = alpha
 
     def _rand_bbox(self, size, lam):
@@ -72,8 +98,8 @@ class CutmixOperator(BatchOperator):
         w = size[2]
         h = size[3]
         cut_rat = np.sqrt(1. - lam)
-        cut_w = np.int(w * cut_rat)
-        cut_h = np.int(h * cut_rat)
+        cut_w = int(w * cut_rat)
+        cut_h = int(h * cut_rat)
 
         # uniform
         cx = np.random.randint(w)
@@ -101,6 +127,7 @@ class CutmixOperator(BatchOperator):
 
 class FmixOperator(BatchOperator):
     """ Fmix operator """
+
     def __init__(self, alpha=1, decay_power=3, max_soft=0., reformulate=False):
         self._alpha = alpha
         self._decay_power = decay_power
@@ -115,3 +142,42 @@ class FmixOperator(BatchOperator):
                 size, self._max_soft, self._reformulate)
         imgs = mask * imgs + (1 - mask) * imgs[idx]
         return list(zip(imgs, labels, labels[idx], [lam] * bs))
+
+
+class OpSampler(object):
+    """ Sample a operator from  """
+
+    def __init__(self, **op_dict):
+        """Build OpSampler
+
+        Raises:
+            Exception: The parameter \"prob\" of operator(s) are be set error.
+        """
+        if len(op_dict) < 1:
+            msg = f"ConfigWarning: No operator in \"OpSampler\". \"OpSampler\" has been skipped."
+
+        self.ops = {}
+        total_prob = 0
+        for op_name in op_dict:
+            param = op_dict[op_name]
+            if "prob" not in param:
+                msg = f"ConfigWarning: Parameter \"prob\" should be set when use operator in \"OpSampler\". The operator \"{op_name}\"'s prob has been set \"0\"."
+                logger.warning(msg)
+            prob = param.pop("prob", 0)
+            total_prob += prob
+            op = eval(op_name)(**param)
+            self.ops[op] = prob
+
+        if total_prob > 1:
+            msg = f"ConfigError: The total prob of operators in \"OpSampler\" should be less 1."
+            logger.error(msg)
+            raise Exception(msg)
+
+        # add "None Op" when total_prob < 1, "None Op" do nothing
+        self.ops[None] = 1 - total_prob
+
+    def __call__(self, batch):
+        op = random.choices(
+            list(self.ops.keys()), weights=list(self.ops.values()), k=1)[0]
+        # return batch directly when None Op
+        return op(batch) if op else batch
