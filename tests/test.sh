@@ -1,6 +1,6 @@
 #!/bin/bash
 FILENAME=$1
-# MODE be one of ['lite_train_infer' 'whole_infer' 'whole_train_infer', 'infer'] 
+# MODE be one of ['lite_train_infer' 'whole_infer' 'whole_train_infer', 'infer', 'cpp_infer'] 
 MODE=$2
 
 dataline=$(cat ${FILENAME})
@@ -145,10 +145,78 @@ benchmark_value=$(func_parser_value "${lines[49]}")
 infer_key1=$(func_parser_key "${lines[50]}")
 infer_value1=$(func_parser_value "${lines[50]}")
 
+if [ ${MODE} = "cpp_infer" ]; then
+    cpp_use_gpu_key=$(func_parser_key "${lines[53]}")
+    cpp_use_gpu_list=$(func_parser_value "${lines[53]}")
+    cpp_cpu_threads_key=$(func_parser_key "${lines[54]}")
+    cpp_cpu_threads_list=$(func_parser_value "${lines[54]}")
+    cpp_use_mkldnn_key=$(func_parser_key "${lines[55]}")
+    cpp_use_mkldnn_list=$(func_parser_value "${lines[55]}")
+    cpp_use_tensorrt_key=$(func_parser_key "${lines[56]}")
+    cpp_use_tensorrt_list=$(func_parser_value "${lines[56]}")
+    cpp_use_fp16_key=$(func_parser_key "${lines[57]}")
+    cpp_use_fp16_list=$(func_parser_value "${lines[57]}")
+fi
+
 LOG_PATH="./tests/output"
 mkdir -p ${LOG_PATH}
 status_log="${LOG_PATH}/results.log"
 
+function func_cpp_inference(){
+    IFS='|'
+    _script=$1
+    _log_path=$2
+    _img_dir=$3
+    # inference 
+    for use_gpu in ${cpp_use_gpu_list[*]}; do
+        if [ ${use_gpu} = "0" ] || [ ${use_gpu} = "cpu" ]; then
+            for use_mkldnn in ${cpp_use_mkldnn_list[*]}; do
+                if [ ${use_mkldnn} = "0" ] && [ ${_flag_quant} = "True" ]; then
+                    continue
+                fi
+                for threads in ${cpp_cpu_threads_list[*]}; do
+                    _save_log_path="${_log_path}/cpp_infer_cpu_usemkldnn_${use_mkldnn}_threads_${threads}.log"
+                    set_infer_data=$(func_set_params "${cpp_image_dir_key}" "${_img_dir}")
+		    cp ../tests/config/cpp_config.txt cpp_config.txt
+		    echo "${cpp_use_gpu_key} ${use_gpu}" >> cpp_config.txt
+		    echo "${cpp_cpu_threads_key} ${threads}" >> cpp_config.txt
+		    echo "${cpp_use_mkldnn_key} ${use_mkldnn}" >> cpp_config.txt
+		    echo "${cpp_use_tensorrt_key} 0" >> cpp_config.txt
+                    command="${_script} cpp_config.txt ${_img_dir} > ${_save_log_path} 2>&1 "
+                    eval $command
+                    last_status=${PIPESTATUS[0]}
+                    eval "cat ${_save_log_path}"
+                    status_check $last_status "${command}" "${status_log}"
+                done
+            done
+        elif [ ${use_gpu} = "1" ] || [ ${use_gpu} = "gpu" ]; then
+            for use_trt in ${cpp_use_tensorrt_list[*]}; do
+                for precision in ${cpp_use_fp16_list[*]}; do
+                    if [[ ${precision} =~ "fp16" || ${precision} =~ "int8" ]] && [ ${use_trt} = "False" ]; then
+                        continue
+                    fi
+                    if [[ ${use_trt} = "False" || ${precision} =~ "int8" ]] && [ ${_flag_quant} = "True" ]; then
+                        continue
+                    fi
+                    _save_log_path="${_log_path}/cpp_infer_gpu_usetrt_${use_trt}_precision_${precision}_batchsize_${batch_size}.log"
+		    cp ../tests/config/cpp_config.txt cpp_config.txt
+		    echo "${cpp_use_gpu_key} ${use_gpu}" >> cpp_config.txt
+		    echo "${cpp_cpu_threads_key} ${threads}" >> cpp_config.txt
+		    echo "${cpp_use_mkldnn_key} ${use_mkldnn}" >> cpp_config.txt
+		    echo "${cpp_use_tensorrt_key} ${precision}" >> cpp_config.txt
+                    command="${_script} cpp_config.txt ${_img_dir} > ${_save_log_path} 2>&1 "
+                    eval $command
+                    last_status=${PIPESTATUS[0]}
+                    eval "cat ${_save_log_path}"
+                    status_check $last_status "${command}" "${status_log}"
+                        
+                done
+            done
+        else
+            echo "Does not support hardware other than CPU and GPU Currently!"
+        fi
+    done
+}
 
 function func_inference(){
     IFS='|'
@@ -246,6 +314,10 @@ if [ ${MODE} = "infer" ]; then
         func_inference "${python}" "${inference_py}" "${infer_model}" "../${LOG_PATH}" "${infer_img_dir}" ${is_quant}
         Count=$(($Count + 1))
     done
+    cd ..
+elif [ ${MODE} = "cpp_infer" ]; then
+    cd deploy
+    func_cpp_inference "./cpp/build/clas_system" "../${LOG_PATH}" "${infer_img_dir}"
     cd ..
 
 else

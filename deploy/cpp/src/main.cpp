@@ -1,4 +1,4 @@
-// Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+// Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #include <fstream>
 #include <numeric>
 
+#include <auto_log/autolog.h>
 #include <include/cls.h>
 #include <include/cls_config.h>
 
@@ -61,11 +62,12 @@ int main(int argc, char **argv) {
 
   Classifier classifier(config.cls_model_path, config.cls_params_path,
                         config.use_gpu, config.gpu_id, config.gpu_mem,
-                        config.cpu_math_library_num_threads, config.use_mkldnn,
+                        config.cpu_threads, config.use_mkldnn,
                         config.use_tensorrt, config.use_fp16,
                         config.resize_short_size, config.crop_size);
 
   double elapsed_time = 0.0;
+  std::vector<double> cls_times;
   int warmup_iter = img_files_list.size() > 5 ? 5 : 0;
   for (int idx = 0; idx < img_files_list.size(); ++idx) {
     std::string img_path = img_files_list[idx];
@@ -78,7 +80,7 @@ int main(int argc, char **argv) {
 
     cv::cvtColor(srcimg, srcimg, cv::COLOR_BGR2RGB);
 
-    double run_time = classifier.Run(srcimg);
+    double run_time = classifier.Run(srcimg, &cls_times);
     if (idx >= warmup_iter) {
       elapsed_time += run_time;
       std::cout << "Current image path: " << img_path << std::endl;
@@ -90,5 +92,16 @@ int main(int argc, char **argv) {
     }
   }
 
+  std::string presion = "fp32";
+
+  if (config.use_fp16)
+    presion = "fp16";
+  if (config.benchmark) {
+    AutoLogger autolog("Classification", config.use_gpu, config.use_tensorrt,
+                       config.use_mkldnn, config.cpu_threads, 1,
+                       "1, 3, 224, 224", presion, cls_times,
+                       img_files_list.size());
+    autolog.report();
+  }
   return 0;
 }

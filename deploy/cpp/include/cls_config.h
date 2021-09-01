@@ -1,4 +1,4 @@
-// Copyright (c) 2020 PaddlePaddle Authors. All Rights Reserved.
+// Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ public:
 
     this->gpu_mem = stoi(config_map_["gpu_mem"]);
 
-    this->cpu_math_library_num_threads =
-        stoi(config_map_["cpu_math_library_num_threads"]);
+    this->cpu_threads = stoi(config_map_["cpu_threads"]);
 
     this->use_mkldnn = bool(stoi(config_map_["use_mkldnn"]));
 
@@ -51,6 +50,8 @@ public:
     this->resize_short_size = stoi(config_map_["resize_short_size"]);
 
     this->crop_size = stoi(config_map_["crop_size"]);
+
+    this->benchmark = bool(stoi(config_map_["benchmark"]));
   }
 
   bool use_gpu = false;
@@ -59,12 +60,13 @@ public:
 
   int gpu_mem = 4000;
 
-  int cpu_math_library_num_threads = 1;
+  int cpu_threads = 1;
 
   bool use_mkldnn = false;
 
   bool use_tensorrt = false;
   bool use_fp16 = false;
+  bool benchmark = false;
 
   std::string cls_model_path;
 

@@ -49,3 +49,10 @@ inference:python/predict_cls.py -c configs/inference_cls.yaml
 -o Global.save_log_path:null
 -o Global.benchmark:True
 null:null
+null:null
+===========================cpp_infer_params===========================
+use_gpu:0|1
+cpu_threads:1|6
+use_mkldnn:0|1
+use_tensorrt:0|1
+use_fp16:0|1

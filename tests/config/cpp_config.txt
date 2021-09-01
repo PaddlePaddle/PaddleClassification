@@ -1,0 +1,19 @@
+# model load config
+gpu_id 0
+gpu_mem 2000
+
+# whole chain test will add following config
+# use_gpu 0
+# cpu_threads 10
+# use_mkldnn 1
+# use_tensorrt 0
+# use_fp16 0
+
+# cls config
+cls_model_path inference/inference.pdmodel
+cls_params_path inference/inference.pdiparams
+resize_short_size 256
+crop_size 224
+
+# for log env info
+benchmark 1
