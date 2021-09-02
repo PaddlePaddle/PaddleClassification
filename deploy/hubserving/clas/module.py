@@ -76,8 +76,7 @@ class ClasSystem(nn.Layer):
         starttime = time.time()
         outputs = self.cls_predictor.predict(inputs)
         elapse = time.time() - starttime
-        preds = self.cls_predictor.postprocess(outputs)
-        return {"prediction": preds, "elapse": elapse}
+        return {"prediction": outputs, "elapse": elapse}
 
     @serving
     def serving_method(self, images, revert_params):
