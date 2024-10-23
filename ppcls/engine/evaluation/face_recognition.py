@@ -1,4 +1,4 @@
-# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2024 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +24,12 @@ from ppcls.utils import logger, all_gather
 
 
 def face_recognition_eval(engine, epoch_id=0):
+    # reset metric on beginning of eval
     if hasattr(engine.eval_metric_func, "reset"):
         engine.eval_metric_func.reset()
     output_info = dict()
+
+    # log time_info for each batch
     time_info = {
         "batch_cost": AverageMeter(
             "batch_cost", '.5f', postfix=" s,"),

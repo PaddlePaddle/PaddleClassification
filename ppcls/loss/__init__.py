@@ -19,7 +19,6 @@ from .supconloss import SupConLoss
 from .softsuploss import SoftSupConLoss
 from .ccssl_loss import CCSSLCELoss
 from .pairwisecosface import PairwiseCosface
-from .partial_fc import LargeScaleClassifier
 from .dmlloss import DMLLoss
 from .distanceloss import DistanceLoss
 from .softtargetceloss import SoftTargetCrossEntropy

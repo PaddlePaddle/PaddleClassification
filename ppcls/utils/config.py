@@ -244,6 +244,9 @@ def dump_infer_config(inference_config, path):
         transforms = config["DataLoader"]["Eval"]["Query"]["dataset"][
             "transform_ops"]
         transforms.append({"ToCHWImage": None})
+    elif config["DataLoader"]["Eval"].get("dataset"):
+        transforms = config["DataLoader"]["Eval"]["dataset"]["transform_ops"]
+        transforms.append({"ToCHWImage": None})
     else:
         logger.error("This config does not support dump transform config!")
     transform = next((item for item in transforms if 'CropImage' in item), None)

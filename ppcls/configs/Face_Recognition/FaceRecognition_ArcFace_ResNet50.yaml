@@ -94,9 +94,6 @@ DataLoader:
       batch_size: 128
       drop_last: False
       shuffle: True
-      #sample_method: "id_avg_prob"
-      #id_list: [50030, 80700, 92019, 96015] # be careful when set relabel=True
-      #ratio: [4, 4]
     loader:
       num_workers: 8
       use_shared_memory: True

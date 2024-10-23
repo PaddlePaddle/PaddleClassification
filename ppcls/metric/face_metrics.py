@@ -1,4 +1,4 @@
-# copyright (c) 2021 PaddlePaddle Authors. All Rights Reserve.
+# copyright (c) 2024 PaddlePaddle Authors. All Rights Reserve.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,21 +95,17 @@ class BestAccuracy(nn.Layer):
             dist = np.sum(np.square(diff), 1)
 
         for fold_idx, (train_set, test_set) in enumerate(k_fold.split(indices)):
-            # print('train_set', train_set)
-            # print('test_set', test_set)
             if pca > 0:
                 print('doing pca on', fold_idx)
                 embed1_train = embeddings1[train_set]
                 embed2_train = embeddings2[train_set]
                 _embed_train = np.concatenate((embed1_train, embed2_train), axis=0)
-                # print(_embed_train.shape)
                 pca_model = PCA(n_components=pca)
                 pca_model.fit(_embed_train)
                 embed1 = pca_model.transform(embeddings1)
                 embed2 = pca_model.transform(embeddings2)
                 embed1 = normalize(embed1)
                 embed2 = normalize(embed2)
-                # print(embed1.shape, embed2.shape)
                 diff = np.subtract(embed1, embed2)
                 dist = np.sum(np.square(diff), 1)
 
@@ -147,7 +143,6 @@ class BestAccuracy(nn.Layer):
         fpr = 0 if (fp + tn == 0) else float(fp) / float(fp + tn)
         acc = float(tp + tn) / dist.size
         return tpr, fpr, acc
-
 
 
 class BestAccOnFiveDatasets(BestAccuracy):
