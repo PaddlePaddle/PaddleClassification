@@ -29,6 +29,7 @@ from .legendary_models.pp_lcnet_v2 import PPLCNetV2_small, PPLCNetV2_base, PPLCN
 from .legendary_models.esnet import ESNet_x0_25, ESNet_x0_5, ESNet_x0_75, ESNet_x1_0
 from .legendary_models.pp_hgnet import PPHGNet_tiny, PPHGNet_small, PPHGNet_base
 from .legendary_models.pp_hgnet_v2 import PPHGNetV2_B0, PPHGNetV2_B1, PPHGNetV2_B2, PPHGNetV2_B3, PPHGNetV2_B4, PPHGNetV2_B5, PPHGNetV2_B6
+from .model_zoo.pphgnetv2face import PPHGNetV2Face_B0, PPHGNetV2Face_B1, PPHGNetV2Face_B2, PPHGNetV2Face_B3, PPHGNetV2Face_B4
 
 from .model_zoo.resnet_vc import ResNet50_vc
 from .model_zoo.resnext import ResNeXt50_32x4d, ResNeXt50_64x4d, ResNeXt101_32x4d, ResNeXt101_64x4d, ResNeXt152_32x4d, ResNeXt152_64x4d
@@ -99,6 +100,7 @@ from .variant_models.foundation_vit_variant import CLIP_large_patch14_224_aesthe
 from .variant_models.swin_transformer_variant import SwinTransformer_tiny_patch4_window7_224_SOLIDER, SwinTransformer_small_patch4_window7_224_SOLIDER, SwinTransformer_base_patch4_window7_224_SOLIDER
 from .model_zoo.adaface_ir_net import AdaFace_IR_18, AdaFace_IR_34, AdaFace_IR_50, AdaFace_IR_101, AdaFace_IR_152, AdaFace_IR_SE_50, AdaFace_IR_SE_101, AdaFace_IR_SE_152, AdaFace_IR_SE_200
 from .model_zoo.arcface_iresnet import FresResNet50, FresResNet100
+from .model_zoo.pplcnetV2face import PPLCNetV2Face_base, PPLCNetV2Face_large
 from .model_zoo.wideresnet import WideResNet
 from .model_zoo.uniformer import UniFormer_small, UniFormer_small_plus, UniFormer_small_plus_dim64, UniFormer_base, UniFormer_base_ls
 

@@ -14,14 +14,15 @@ class FaceEvalDataset(Dataset):
         super().__init__()
         self._dataset_root = dataset_root
         self._pair_label_path = pair_label_path
-        self._transform_ops = transform_ops
         self.delimiter = delimiter if delimiter is not None else " "
+        self._transform_ops = create_operators(transform_ops) if transform_ops \
+            is not None else None
 
         self._load_anno()
     
     def _load_anno(self):
         assert os.path.exists(
-            self._pair_label_path), "pair label file {} does not exist"
+            self._pair_label_path), f"pair label file {self._pair_label_path} does not exist"
         assert os.path.exists(
             self._dataset_root), f"path {self._dataset_root} does not exist."
         self.image_pairs = []

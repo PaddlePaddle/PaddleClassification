@@ -2,7 +2,7 @@
 Global:
   checkpoints: null
   pretrained_model: null
-  output_dir: output/face_arcface_mobilefacenet-128
+  output_dir: output/face_arcface_res50
   device: gpu
   save_interval: 1
   eval_during_train: True
@@ -21,7 +21,7 @@ Global:
   save_inference_dir: ./inference
 
 AMP:
-  scale_loss: 27648
+  scale_loss: 27648.0
   use_dynamic_loss_scaling: True
   # O1: mixed fp16
   level: O1
@@ -33,10 +33,13 @@ Arch:
   infer_add_softmax: False
 
   Backbone:
-    name: MobileFaceNet
+    name: ResNet50
+    max_pool: False
+    stride_list: [1, 2, 2, 2, 2]
+    class_num: 512
   Head:
     name: ArcMargin
-    embedding_size: 128
+    embedding_size: 512
     class_num: 93431
     margin: 0.5
     scale: 64
@@ -46,17 +49,6 @@ Loss:
     - CELoss:
         weight: 1.0
 
-# Optimizer:
-#   name: Momentum
-#   momentum: 0.9
-#   lr:
-#     name: Piecewise
-#     decay_epochs: [10, 16, 22]
-#     values: [0.02, 0.002, 0.0002, 0.00002]
-#   regularizer:
-#     name: L2
-#     coeff: 0.00001
-#   clip_norm: 10
 Optimizer:
   name: AdamW
   beta1: 0.9
@@ -77,7 +69,7 @@ DataLoader:
   Train:
     dataset:
       name: ImageNetDataset
-      image_root: datasets/MS1M_v3/
+      image_root: dataset/MS1M_v3/
       cls_label_path: dataset/MS1M_v3/label.txt
       delimiter: "\t"
       transform_ops:
