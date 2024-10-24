@@ -68,7 +68,7 @@ paddlex --pipeline image_classification --input https://paddle-model-ecology.bj.
 
 ### 📝 Python脚本使用
 
-几行代码即可完成产线的快速推理，以通用图像分类产线为例：
+使用 [测试文件](https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_image_classification_001.jpg)，并将 `predict()` 替换为本地路径，几行代码即可完成产线的快速推理，以通用图像分类产线为例：
 ```python
 from paddlex import create_pipeline
 
