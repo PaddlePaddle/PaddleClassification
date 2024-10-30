@@ -93,7 +93,7 @@ class ConvBlock(nn.Layer):
             return self.prelu(x)
 
 
-class mobilefacenet(nn.Layer):
+class Backbone(nn.Layer):
     def __init__(self,
                  feature_dim=128,
                  bottleneck_setting=MobileFaceNet_BottleNeck_Setting,
@@ -162,5 +162,5 @@ class mobilefacenet(nn.Layer):
 
 
 def MobileFaceNet(num_features=128, **args):
-    model = mobilefacenet(feature_dim=num_features, **args)
+    model = Backbone(feature_dim=num_features, **args)
     return model

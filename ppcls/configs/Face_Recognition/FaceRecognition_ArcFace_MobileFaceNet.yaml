@@ -66,7 +66,7 @@ DataLoader:
   Train:
     dataset:
       name: ImageNetDataset
-      image_root: datasets/MS1M_v3/
+      image_root: dataset/MS1M_v3/
       cls_label_path: dataset/MS1M_v3/label.txt
       delimiter: "\t"
       transform_ops:
