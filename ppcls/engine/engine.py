@@ -15,6 +15,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import gc
 import shutil
 import copy
 import platform
@@ -411,10 +412,12 @@ class Engine(object):
                         save_path = os.path.join(self.output_dir, prefix,
                                                  "inference")
                         self.export(save_path, uniform_output_enabled)
+                        gc.collect()
                         if self.ema:
                             ema_save_path = os.path.join(
                                 self.output_dir, prefix, "inference_ema")
                             self.export(ema_save_path, uniform_output_enabled)
+                            gc.collect()
                         update_train_results(
                             self.config, prefix, metric_info, ema=self.ema)
                         save_load.save_model_info(metric_info, self.output_dir,
@@ -440,10 +443,12 @@ class Engine(object):
                     save_path = os.path.join(self.output_dir, prefix,
                                              "inference")
                     self.export(save_path, uniform_output_enabled)
+                    gc.collect()
                     if self.ema:
                         ema_save_path = os.path.join(self.output_dir, prefix,
                                                      "inference_ema")
                         self.export(ema_save_path, uniform_output_enabled)
+                        gc.collect()
                     update_train_results(
                         self.config,
                         prefix,
@@ -468,10 +473,12 @@ class Engine(object):
             if uniform_output_enabled:
                 save_path = os.path.join(self.output_dir, prefix, "inference")
                 self.export(save_path, uniform_output_enabled)
+                gc.collect()
                 if self.ema:
                     ema_save_path = os.path.join(self.output_dir, prefix,
                                                  "inference_ema")
                     self.export(ema_save_path, uniform_output_enabled)
+                    gc.collect()
                 save_load.save_model_info(metric_info, self.output_dir, prefix)
                 self.model.train()
 
