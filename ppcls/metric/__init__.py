@@ -23,7 +23,7 @@ from .metrics import HammingDistance, AccuracyScore
 from .metrics import ATTRMetric
 from .metrics import TprAtFpr, MultilabelMeanAccuracy
 from .metrics import MultiLabelMAP
-from .face_metrics import BestAccuracy, BestAccOnFiveDatasets
+from .face_metrics import FaceAccuracy, FaceAccOnFiveDatasets
 
 
 class CombinedMetrics(AvgMetrics):

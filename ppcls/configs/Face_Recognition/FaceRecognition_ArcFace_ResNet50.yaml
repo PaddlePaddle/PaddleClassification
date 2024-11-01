@@ -2,7 +2,7 @@
 Global:
   checkpoints: null
   pretrained_model: null
-  output_dir: output/face_arcface_res50
+  output_dir: output/ResNet50_face
   device: gpu
   save_interval: 1
   eval_during_train: True

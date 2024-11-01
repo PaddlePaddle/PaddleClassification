@@ -2,7 +2,7 @@
 Global:
   checkpoints: null
   pretrained_model: null
-  output_dir: output/face_arcface_mobilefacenet
+  output_dir: output/MobileFaceNet
   device: gpu
   save_interval: 1
   eval_during_train: True
@@ -125,4 +125,4 @@ DataLoader:
 
 Metric:
   Eval:
-    - BestAccOnFiveDatasets: {}
+    - FaceAccOnFiveDatasets: {}

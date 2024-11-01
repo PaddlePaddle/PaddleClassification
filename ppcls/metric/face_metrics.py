@@ -24,7 +24,7 @@ from sklearn.preprocessing import normalize
 from ppcls.utils import logger
 
 
-class BestAccuracy(nn.Layer):
+class FaceAccuracy(nn.Layer):
     """
     This code is modified from https://github.com/deepinsight/insightface/blob/master/recognition/arcface_torch/eval/verification.py
     """
@@ -112,15 +112,15 @@ class BestAccuracy(nn.Layer):
             # Find the best threshold for the fold
             acc_train = np.zeros((nrof_thresholds))
             for threshold_idx, threshold in enumerate(thresholds):
-                _, _, acc_train[threshold_idx] = BestAccuracy.calculate_accuracy(
+                _, _, acc_train[threshold_idx] = FaceAccuracy.calculate_accuracy(
                     threshold, dist[train_set], actual_issame[train_set])
             best_threshold_index = np.argmax(acc_train)
             best_thresholds[fold_idx] = thresholds[best_threshold_index]
             for threshold_idx, threshold in enumerate(thresholds):
                 tprs[fold_idx, threshold_idx], fprs[
-                    fold_idx, threshold_idx], _ = BestAccuracy.calculate_accuracy(
+                    fold_idx, threshold_idx], _ = FaceAccuracy.calculate_accuracy(
                         threshold, dist[test_set], actual_issame[test_set])
-            _, _, accuracy[fold_idx] = BestAccuracy.calculate_accuracy(
+            _, _, accuracy[fold_idx] = FaceAccuracy.calculate_accuracy(
                 thresholds[best_threshold_index], dist[test_set],
                 actual_issame[test_set])
 
@@ -145,7 +145,7 @@ class BestAccuracy(nn.Layer):
         return tpr, fpr, acc
 
 
-class BestAccOnFiveDatasets(BestAccuracy):
+class FaceAccOnFiveDatasets(FaceAccuracy):
     dataname_to_idx = {
         "agedb_30": 0,
         "cfp_fp": 1,
