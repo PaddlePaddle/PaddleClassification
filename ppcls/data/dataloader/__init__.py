@@ -10,7 +10,7 @@ from ppcls.data.dataloader.mix_sampler import MixSampler
 from ppcls.data.dataloader.multi_scale_sampler import MultiScaleSampler
 from ppcls.data.dataloader.pk_sampler import PKSampler
 from ppcls.data.dataloader.person_dataset import Market1501, MSMT17, DukeMTMC
-from ppcls.data.dataloader.face_dataset import AdaFaceDataset, FiveValidationDataset
+from ppcls.data.dataloader.face_dataset import FaceEvalDataset, FiveFaceEvalDataset
 from ppcls.data.dataloader.custom_label_dataset import CustomLabelDataset
 from ppcls.data.dataloader.cifar import Cifar10, Cifar100
 from ppcls.data.dataloader.metabin_sampler import DomainShuffleBatchSampler, NaiveIdentityBatchSampler

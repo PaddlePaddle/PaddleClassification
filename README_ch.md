@@ -13,22 +13,18 @@
 
 ## 📣 近期更新
 
-- **💥 直播预告：11.1-11.3日每晚8点半**，PaddleClas研发团队详解PP-ShituV2优化策略与真实产业应用。微信扫描下方二维码，关注公众号并填写问卷后进入官方交流群，获取直播链接与20G重磅图像分类学习大礼包（内含20+数据集、4个垂类模型、70+前沿论文集合）
+- **🔥2024.10.1 添加图像分类和图像检索领域低代码全流程开发能力**:
+  *  飞桨低代码开发工具PaddleX，依托于PaddleClas的先进技术，支持了图像分类和图像检索领域的**低代码全流程**开发能力：
+     * 🎨 [**模型丰富一键调用**](docs/zh_CN/paddlex/quick_start.md)：将通用图像分类、图像多标签分类、通用图像识别、人脸识别涉及的**98个模型**整合为6条模型产线，通过极简的**Python API一键调用**，快速体验模型效果。此外，同一套API，也支持目标检测、图像分割、文本图像智能分析、通用OCR、时序预测等共计**200+模型**，形成20+单功能模块，方便开发者进行**模型组合使用**。
+     * 🚀 [**提高效率降低门槛**](docs/zh_CN/paddlex/overview.md)：提供基于**统一命令**和**图形界面**两种方式，实现模型简洁高效的使用、组合与定制。支持**高性能推理、服务化部署和端侧部署**等多种部署方式。此外，对于各种主流硬件如**英伟达GPU、昆仑芯、昇腾、寒武纪和海光**等，进行模型开发时，都可以**无缝切换**。
+  * 新增图像分类算法[**MobileNetV4、StarNet、FasterNet**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/image_classification.md)
+  * 新增服务端图像识别模型（图像特征）[**PP-ShiTuV2_rec_CLIP_vit_base、PP-ShiTuV2_rec_CLIP_vit_large**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/image_feature.md)
+  * 新增多标签图像分类模型[**CLIP_vit_base_patch16_448_ML、PP-HGNetV2-B0_ML、PP-HGNetV2-B4_ML、PP-HGNetV2-B6_ML、PP-LCNet_x1_0_ML、ResNet50_ML**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/ml_classification.md)
 
-<div align="center">
-    <img src="https://github.com/PaddlePaddle/PaddleClas/assets/12560511/eed2d9e0-28d8-4037-9777-a2d4cf3aabbc" width = "150" height = "150"/>
-</div>
-
-- 2022.9.14 发布**商超零售新革命-生鲜智能结算产业应用**范例
-
-- **🔥️ 2022.9.13 发布超轻量图像识别系统[PP-ShiTuV2](docs/zh_CN/models/PP-ShiTu/README.md)：**
+- 2022.9.13 发布超轻量图像识别系统[PP-ShiTuV2](docs/zh_CN/models/PP-ShiTu/README.md)：
   - recall1精度提升8个点，覆盖商品识别、垃圾分类、航拍场景等[20+识别场景](docs/zh_CN/deployment/PP-ShiTu/application_scenarios.md)，
   - 新增[库管理工具](./deploy/shitu_index_manager/)，[Android Demo](./docs/zh_CN/quick_start/quick_start_recognition.md)全新体验。
 
-- 2022.9.4 新增[生鲜产品自主结算范例库](./docs/zh_CN/samples/Fresh_Food_Recogniiton/README.md)，具体内容可以在AI Studio上体验。
-- 2022.6.15 发布[PULC超轻量图像分类实用方案](docs/zh_CN/training/PULC.md)，CPU推理3ms，精度比肩SwinTransformer，覆盖人、车、OCR场景九大常见任务。
-- 2022.5.23 新增[人员出入管理范例库](https://aistudio.baidu.com/aistudio/projectdetail/4094475)，具体内容可以在 AI Studio 上体验。
-- 2022.5.20 上线[PP-HGNet](./docs/zh_CN/models/ImageNet1k/PP-HGNet.md), [PP-LCNetv2](./docs/zh_CN/models/ImageNet1k/PP-LCNetV2.md)。
 - [more](docs/zh_CN/version_history.md)
 
 
@@ -43,8 +39,9 @@ PaddleClas支持多种前沿图像分类、识别相关算法，发布产业级�
 > 上述内容的使用方法建议从文档教程中的快速开始体验
 
 
-## ⚡ 快速开始
+## ⚡ [快速开始](docs/zh_CN/paddlex/quick_start.md)
 
+- [🔥 一键调用98个PaddleClas核心模型](docs/zh_CN/paddlex/quick_start.md)
 - PULC超轻量图像分类方案快速体验：[点击这里](docs/zh_CN/quick_start/PULC.md)
 - PP-ShiTu图像识别快速体验：[点击这里](./docs/zh_CN/quick_start/quick_start_recognition.md)
 - PP-ShiTuV2 Android Demo APP，可扫描如下二维码，下载体验
@@ -53,17 +50,7 @@ PaddleClas支持多种前沿图像分类、识别相关算法，发布产业级�
 <img src="./docs/images/quick_start/android_demo/PPShiTu_qrcode.png"  width = "170" height = "170" />
 </div>
 
-## 👫 开源社区
-
-* **📑项目合作：** 如果您是企业开发者且有明确的图像分类应用需求，填写[问卷](https://paddle.wjx.cn/vm/hnGOjfn.aspx# )后可免费与官方团队展开不同层次的合作。
-* **👫加入社区：** 微信扫描二维码并填写问卷之后，加入交流群领取**20G重磅图像分类学习大礼包**，内含
-  * **20+场景数据库**，包括各类商品、动植物、航拍图像等数据集
-  * 场景应用**模型集合**：包括人员出入管理、生鲜品识别、商品识别等
-  * **70+前沿图像分类与识别论文**、历次发版课程视频、PPT与优质社区项目等
-
-<div align="center">
-  <img src="https://user-images.githubusercontent.com/50011306/215993395-b2601ca3-5b6e-42f6-9e3e-b2149c4a791e.png" width = "150" height = "150"/>
-</div>
+## 🔥 [低代码全流程开发](docs/zh_CN/paddlex/overview.md)
 
 
 ## 🛠️ PP系列模型列表

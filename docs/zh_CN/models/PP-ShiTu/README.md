@@ -46,6 +46,7 @@ PP-ShiTuV2 是基于 PP-ShiTuV1 改进的一个实用轻量级通用图像识别
 **注：**
 - recall及mAP指标的介绍可以参考 [常用指标](../../algorithm_introduction/ReID.md#22-常用指标)。
 - 延时是基于 Intel(R) Xeon(R) Gold 6148 CPU @ 2.40GHz 测试得到，开启 MKLDNN 加速策略，线程数为10。
+- PP-ShiTuV2 默认的识别模型是PPLCNetV2_base_ShiTu，如果希望使用提取特征能力更强的识别模型，请参考[特征抽取文档](../../training/PP-ShiTu/feature_extraction.md)。
 
 ## 2. 模型快速体验
 

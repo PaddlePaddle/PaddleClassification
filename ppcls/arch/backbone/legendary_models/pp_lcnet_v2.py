@@ -53,6 +53,21 @@ def make_divisible(v, divisor=8, min_value=None):
         new_v += divisor
     return new_v
 
+def _create_act(act):
+    if act == "hardswish":
+        return nn.Hardswish()
+    elif act == "relu":
+        return nn.ReLU()
+    elif act == "relu6":
+        return nn.ReLU6()
+    elif act == "prelu":
+        return nn.PReLU()
+    elif act == "leaky_relu":
+        return nn.LeakyReLU(negative_slope=0.1)
+    else:
+        raise RuntimeError(
+            "The activation function is not supported: {}".format(act))
+
 
 class ConvBNLayer(TheseusLayer):
     def __init__(self,
@@ -61,9 +76,9 @@ class ConvBNLayer(TheseusLayer):
                  kernel_size,
                  stride,
                  groups=1,
-                 use_act=True):
+                 act="relu"):
         super().__init__()
-        self.use_act = use_act
+        self.act = act
         self.conv = Conv2D(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -78,19 +93,19 @@ class ConvBNLayer(TheseusLayer):
             out_channels,
             weight_attr=ParamAttr(regularizer=L2Decay(0.0)),
             bias_attr=ParamAttr(regularizer=L2Decay(0.0)))
-        if self.use_act:
-            self.act = nn.ReLU()
+        if self.act is not None:
+            self.act = _create_act(act)
 
     def forward(self, x):
         x = self.conv(x)
         x = self.bn(x)
-        if self.use_act:
+        if self.act:
             x = self.act(x)
         return x
 
 
 class SEModule(TheseusLayer):
-    def __init__(self, channel, reduction=4):
+    def __init__(self, channel, reduction=4, act='relu'):
         super().__init__()
         self.avg_pool = AdaptiveAvgPool2D(1)
         self.conv1 = Conv2D(
@@ -99,7 +114,7 @@ class SEModule(TheseusLayer):
             kernel_size=1,
             stride=1,
             padding=0)
-        self.relu = nn.ReLU()
+        self.act = _create_act(act)
         self.conv2 = Conv2D(
             in_channels=channel // reduction,
             out_channels=channel,
@@ -112,7 +127,7 @@ class SEModule(TheseusLayer):
         identity = x
         x = self.avg_pool(x)
         x = self.conv1(x)
-        x = self.relu(x)
+        x = self.act(x)
         x = self.conv2(x)
         x = self.hardsigmoid(x)
         x = paddle.multiply(x=identity, y=x)
@@ -128,7 +143,8 @@ class RepDepthwiseSeparable(TheseusLayer):
                  split_pw=False,
                  use_rep=False,
                  use_se=False,
-                 use_shortcut=False):
+                 use_shortcut=False,
+                 act="relu"):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -151,7 +167,7 @@ class RepDepthwiseSeparable(TheseusLayer):
                     kernel_size=kernel_size,
                     stride=stride,
                     groups=in_channels,
-                    use_act=False)
+                    act=None)
                 self.dw_conv_list.append(dw_conv)
             self.dw_conv = nn.Conv2D(
                 in_channels=in_channels,
@@ -168,10 +184,10 @@ class RepDepthwiseSeparable(TheseusLayer):
                 stride=stride,
                 groups=in_channels)
 
-        self.act = nn.ReLU()
+        self.act = _create_act(act)
 
         if use_se:
-            self.se = SEModule(in_channels)
+            self.se = SEModule(in_channels, act=act)
 
         if self.split_pw:
             pw_ratio = 0.5
@@ -179,18 +195,21 @@ class RepDepthwiseSeparable(TheseusLayer):
                 in_channels=in_channels,
                 kernel_size=1,
                 out_channels=int(out_channels * pw_ratio),
-                stride=1)
+                stride=1,
+                act=act)
             self.pw_conv_2 = ConvBNLayer(
                 in_channels=int(out_channels * pw_ratio),
                 kernel_size=1,
                 out_channels=out_channels,
-                stride=1)
+                stride=1,
+                act=act)
         else:
             self.pw_conv = ConvBNLayer(
                 in_channels=in_channels,
                 kernel_size=1,
                 out_channels=out_channels,
-                stride=1)
+                stride=1,
+                act=act)
 
     def forward(self, x):
         if self.use_rep:
@@ -260,6 +279,7 @@ class PPLCNetV2(TheseusLayer):
                  dropout_prob=0,
                  use_last_conv=True,
                  class_expand=1280,
+                 act="relu",
                  **kwargs):
         super().__init__(**kwargs)
         self.scale = scale
@@ -271,11 +291,13 @@ class PPLCNetV2(TheseusLayer):
                 in_channels=3,
                 kernel_size=3,
                 out_channels=make_divisible(32 * scale),
-                stride=2), RepDepthwiseSeparable(
+                stride=2,
+                act=act), RepDepthwiseSeparable(
                     in_channels=make_divisible(32 * scale),
                     out_channels=make_divisible(64 * scale),
                     stride=1,
-                    dw_size=3)
+                    dw_size=3,
+                    act=act)
         ])
 
         # stages
@@ -294,7 +316,8 @@ class PPLCNetV2(TheseusLayer):
                         split_pw=split_pw,
                         use_rep=use_rep,
                         use_se=use_se,
-                        use_shortcut=use_shortcut)
+                        use_shortcut=use_shortcut,
+                        act=act)
                     for i in range(depths[depth_idx])
                 ]))
 
@@ -309,7 +332,7 @@ class PPLCNetV2(TheseusLayer):
                 stride=1,
                 padding=0,
                 bias_attr=False)
-            self.act = nn.ReLU()
+            self.act = _create_act(act)
             self.dropout = Dropout(p=dropout_prob, mode="downscale_in_infer")
 
         self.flatten = nn.Flatten(start_axis=1, stop_axis=-1)

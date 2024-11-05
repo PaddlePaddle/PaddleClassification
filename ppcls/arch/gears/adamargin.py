@@ -64,6 +64,8 @@ class AdaMargin(Layer):
             'batch_std', paddle.ones([1]) * 100, persistable=True)
 
     def forward(self, embbedings, label):
+        if not self.training:
+            return embbedings
 
         norms = paddle.norm(embbedings, 2, 1, True)
         embbedings = paddle.divide(embbedings, norms)

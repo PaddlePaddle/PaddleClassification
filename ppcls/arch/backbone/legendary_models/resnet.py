@@ -295,6 +295,7 @@ class ResNet(TheseusLayer):
                  class_num=1000,
                  lr_mult_list=[1.0, 1.0, 1.0, 1.0, 1.0],
                  stride_list=[2, 2, 2, 2, 2],
+                 max_pool=True,
                  data_format="NCHW",
                  input_image_channel=3,
                  return_patterns=None,
@@ -359,11 +360,13 @@ class ResNet(TheseusLayer):
             for in_c, out_c, k, s in self.stem_cfg[version]
         ])
 
-        self.max_pool = MaxPool2D(
-            kernel_size=3,
-            stride=stride_list[1],
-            padding=1,
-            data_format=data_format)
+        self.max_pool = max_pool
+        if max_pool:
+            self.max_pool = MaxPool2D(
+                kernel_size=3,
+                stride=stride_list[1],
+                padding=1,
+                data_format=data_format)
         block_list = []
         for block_idx in range(len(self.block_depth)):
             # paddleclas' special improvement version
@@ -377,7 +380,7 @@ class ResNet(TheseusLayer):
                     self.num_filters[block_idx] * self.channels_mult,
                     num_filters=self.num_filters[block_idx],
                     stride=self.stride_list[block_idx + 1]
-                    if i == 0 and block_idx != 0 else 1,
+                    if i == 0 and (block_idx != 0 or not max_pool) else 1,
                     shortcut=shortcut,
                     if_first=block_idx == i == 0 if version == "vd" else True,
                     layer=layer,
@@ -411,7 +414,8 @@ class ResNet(TheseusLayer):
             x = paddle.transpose(x, [0, 2, 3, 1])
             x.stop_gradient = True
         x = self.stem(x)
-        x = self.max_pool(x)
+        if self.max_pool:
+            x = self.max_pool(x)
         x = self.blocks(x)
         x = self.avg_pool(x)
         x = self.flatten(x)

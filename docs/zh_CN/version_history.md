@@ -1,64 +1,19 @@
-# 版本更新信息
-----------
-## 目录
-* [1. v2.3](#1)
-* [2. v2.2](#2)
-
-<a name='1'></a>
-
-## 1. v2.3
-
-- 模型更新
-  - 添加轻量化模型预训练权重，包括检测模型、特征模型
-  - 发布 PP-LCNet 系列模型，此系列模型是专门在 CPU 上设计运行的自研模型
-  - SwinTransformer、Twins、Deit 支持从 scrach 直接训练，达到论文精度
-- 框架基础能力
-  - 添加 DeepHash 模块，支持特征模型直接输出二值特征
-  - 添加 PKSampler，特征模型不能多机多卡的训练的问题
-  - 支持 PaddleSlim：支持分类模型、特征模型的量化、裁剪训练及离线量化功能
-  - Legendary models 支持模型中间结果输出
-  - 支持多标签分类训练
-- 预测部署
-  - 使用 Faiss 替换原有特征检索库，提升平台适配性
-  - 支持 PaddleServing：支持分类模型、图像识别流程的部署
-
-- 推荐库版本
-  - python 版本：3.7
-  - PaddlePaddle 版本：2.1.3
-  - PaddleSlim 版本：2.2.0
-  - PaddleServing 版本：0.6.1
-
-<a name='2'></a>
-
-## 2. v2.2
-
-- 模型更新
-  - 添加 LeViT、Twins、TNT、DLA、HardNet、RedNet、SwinTransfomer 模型
-- 框架基础能力
-  - 将分类模型分为两类
-    -  legendary models：引入 TheseusLayer 基类，及增加了修改网络功能接口，同时支持网络截断输出功能
-    - model zoo：其他普通分类模型
-  - 添加 Metric Learning 算法支持
-    - 添加多种相关 Loss 算法，及基础网络模块 gears（支持与 backbone、loss 组合）方便使用
-    - 同时支持普通分类及 metric learning 相关任务训练
-  - 支持静态图训练
-  - 分类训练支持 dali 加速
-  - 支持 fp16 训练
-- 应用更新
-  - 添加商品识别、车辆识别（车辆细粒度分类、车辆 ReID）、logo 识别、动漫人物识别应用具体案例及相关模型
-  - 添加图像识别完整 pipeline，包含检测模块、特征提取模块、向量检索模块
-- 预测部署
-  - 添加百度自研向量检索模块 Mobius，支持图像识别系统预测部署
-  - 图像识别，建立特征库支持 batch_size>1
-- 文档更新
-  - 添加图像识别相关文档
-  - 修复之前文档 bug
-- 推荐库版本
-  - python 版本：3.7
-  - PaddlePaddle：2.1.2
-
 # 更新日志
 
+- **🔥2024.10.1 发布PaddleClas release/2.6**:
+  *  飞桨一站式全流程开发工具PaddleX，依托于PaddleClas的先进技术，支持了图像分类和图像检索领域的**一站式全流程**开发能力：
+     * 🎨 [**模型丰富一键调用**](docs/zh_CN/paddlex/quick_start.md)：将通用图像分类、图像多标签分类、通用图像识别、人脸识别涉及的**98个模型**整合为6条模型产线，通过极简的**Python API一键调用**，快速体验模型效果。此外，同一套API，也支持目标检测、图像分割、文本图像智能分析、通用OCR、时序预测等共计**200+模型**，形成20+单功能模块，方便开发者进行**模型组合使用**。
+     * 🚀 [**提高效率降低门槛**](docs/zh_CN/paddlex/overview.md)：提供基于**统一命令**和**图形界面**两种方式，实现模型简洁高效的使用、组合与定制。支持**高性能部署、服务化部署和端侧部署**等多种部署方式。此外，对于各种主流硬件如**英伟达GPU、昆仑芯、昇腾、寒武纪和海光**等，进行模型开发时，都可以**无缝切换**。
+  * 新增图像分类算法[**MobileNetV4、StarNet、FasterNet**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/image_classification.md)
+
+- 2022.9.13 发布超轻量图像识别系统[PP-ShiTuV2](docs/zh_CN/models/PP-ShiTu/README.md)：
+  - recall1精度提升8个点，覆盖商品识别、垃圾分类、航拍场景等[20+识别场景](docs/zh_CN/deployment/PP-ShiTu/application_scenarios.md)，
+  - 新增[库管理工具](./deploy/shitu_index_manager/)，[Android Demo](./docs/zh_CN/quick_start/quick_start_recognition.md)全新体验。
+
+- 2022.9.4 新增[生鲜产品自主结算范例库](./docs/zh_CN/samples/Fresh_Food_Recogniiton/README.md)，具体内容可以在AI Studio上体验。
+- 2022.6.15 发布[PULC超轻量图像分类实用方案](docs/zh_CN/training/PULC.md)，CPU推理3ms，精度比肩SwinTransformer，覆盖人、车、OCR场景九大常见任务。
+- 2022.5.23 新增[人员出入管理范例库](https://aistudio.baidu.com/aistudio/projectdetail/4094475)，具体内容可以在 AI Studio 上体验。
+- 2022.5.20 上线[PP-HGNet](./docs/zh_CN/models/ImageNet1k/PP-HGNet.md), [PP-LCNetv2](./docs/zh_CN/models/ImageNet1k/PP-LCNetV2.md)。
 - 2022.4.21 新增 CVPR2022 oral论文 [MixFormer](https://arxiv.org/pdf/2204.02557.pdf) 相关[代码](https://github.com/PaddlePaddle/PaddleClas/pull/1820/files)。
 - 2021.11.1 发布[PP-ShiTu技术报告](https://arxiv.org/pdf/2111.00775.pdf)，新增饮料识别demo。
 - 2021.10.23 发布轻量级图像识别系统PP-ShiTu，CPU上0.2s即可完成在10w+库的图像识别。[点击这里](quick_start/quick_start_recognition.md)立即体验。

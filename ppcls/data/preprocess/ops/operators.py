@@ -273,19 +273,13 @@ class CropWithPadding(RandomResizedCrop):
         self.padding_num = padding_num
 
     def __call__(self, img):
-        is_cv2_img = False
-        if isinstance(img, np.ndarray):
-            flag = True
         if np.random.random() < self.prob:
             # RandomResizedCrop augmentation
             new = np.zeros_like(np.array(img)) + self.padding_num
             #  orig_W, orig_H = F._get_image_size(sample)
-            orig_W, orig_H = self._get_image_size(img)
-            i, j, h, w = self._get_param(img)
+            i, j, h, w = self._dynamic_get_param(img)
             cropped = F.crop(img, i, j, h, w)
             new[i:i + h, j:j + w, :] = np.array(cropped)
-            if not isinstance:
-                new = Image.fromarray(new.astype(np.uint8))
             return new
         else:
             return img
