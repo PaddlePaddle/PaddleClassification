@@ -30,7 +30,7 @@ AMP:
 Arch:
   name: MobileNetV4_hybrid_large
   drop_rate: 0.2
-  drop_path_rate: 0.1
+  drop_path_rate: 0.35
   use_fused_attn: False
   class_num: 1000
  

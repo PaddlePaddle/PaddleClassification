@@ -57,7 +57,7 @@ Optimizer:
   lr:
     # for 8 cards
     name: Cosine
-    learning_rate: 0.002 ##null
+    learning_rate: 0.003 ##null
     eta_min: 1.0e-06
     warmup_epoch: 20
     warmup_start_lr: 0

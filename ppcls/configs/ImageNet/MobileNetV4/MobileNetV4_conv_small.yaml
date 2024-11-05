@@ -111,7 +111,7 @@ DataLoader:
               prob: 0.5
     sampler:
       name: DistributedBatchSampler
-      batch_size: 1024
+      batch_size: 512
       drop_last: False
       shuffle: True
     loader:
