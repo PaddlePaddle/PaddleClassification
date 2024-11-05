@@ -13,13 +13,14 @@
 
 ## 📣 近期更新
 
-- **🔥2024.10.1 添加图像分类和图像检索领域低代码全流程开发能力**:
+- **🔥2024.11.5 添加图像分类和图像检索领域低代码全流程开发能力**:
   *  飞桨低代码开发工具PaddleX，依托于PaddleClas的先进技术，支持了图像分类和图像检索领域的**低代码全流程**开发能力：
      * 🎨 [**模型丰富一键调用**](docs/zh_CN/paddlex/quick_start.md)：将通用图像分类、图像多标签分类、通用图像识别、人脸识别涉及的**98个模型**整合为6条模型产线，通过极简的**Python API一键调用**，快速体验模型效果。此外，同一套API，也支持目标检测、图像分割、文本图像智能分析、通用OCR、时序预测等共计**200+模型**，形成20+单功能模块，方便开发者进行**模型组合使用**。
      * 🚀 [**提高效率降低门槛**](docs/zh_CN/paddlex/overview.md)：提供基于**统一命令**和**图形界面**两种方式，实现模型简洁高效的使用、组合与定制。支持**高性能推理、服务化部署和端侧部署**等多种部署方式。此外，对于各种主流硬件如**英伟达GPU、昆仑芯、昇腾、寒武纪和海光**等，进行模型开发时，都可以**无缝切换**。
   * 新增图像分类算法[**MobileNetV4、StarNet、FasterNet**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/image_classification.md)
   * 新增服务端图像识别模型（图像特征）[**PP-ShiTuV2_rec_CLIP_vit_base、PP-ShiTuV2_rec_CLIP_vit_large**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/image_feature.md)
   * 新增多标签图像分类模型[**CLIP_vit_base_patch16_448_ML、PP-HGNetV2-B0_ML、PP-HGNetV2-B4_ML、PP-HGNetV2-B6_ML、PP-LCNet_x1_0_ML、ResNet50_ML**](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/module_usage/tutorials/cv_modules/ml_classification.md)
+  * 新增人脸识别模型[**MobileFaceNet、ResNet50_face**](https://github.com/PaddlePaddle/PaddleX/blob/develop/docs/module_usage/tutorials/cv_modules/face_recognition.md)，新增[人脸识别端到端系统](https://github.com/PaddlePaddle/PaddleX/blob/develop/docs/pipeline_usage/tutorials/cv_pipelines/face_recognition.md)。
 
 - 2022.9.13 发布超轻量图像识别系统[PP-ShiTuV2](docs/zh_CN/models/PP-ShiTu/README.md)：
   - recall1精度提升8个点，覆盖商品识别、垃圾分类、航拍场景等[20+识别场景](docs/zh_CN/deployment/PP-ShiTu/application_scenarios.md)，
