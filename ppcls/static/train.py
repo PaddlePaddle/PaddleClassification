@@ -92,7 +92,7 @@ def main(args):
 
     # assign the device
     assert global_config["device"] in [
-        "cpu", "gpu", "xpu", "npu", "mlu", "ascend", "intel_gpu", "mps"
+        "cpu", "gpu", "xpu", "npu", "mlu", "ascend", "intel_gpu", "mps", "gcu"
     ]
     device = paddle.set_device(global_config["device"])
 

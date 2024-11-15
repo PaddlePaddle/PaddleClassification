@@ -74,6 +74,22 @@ class Predictor(object):
             config.enable_xpu()
         elif args.get("use_mlu", False):
             config.enable_custom_device('mlu')
+        elif args.get("use_gcu", False):
+            assert paddle.device.is_compiled_with_custom_device("gcu"), (
+                "Config use_gcu cannot be set as True while your paddle "
+                "is not compiled with gcu! \nPlease try: \n"
+                "\t1. Install paddle-custom-gcu to run model on GCU. \n"
+                "\t2. Set use_gcu as False in config file to run model on CPU."
+            )
+            import paddle_custom_device.gcu.passes as gcu_passes
+            gcu_passes.setUp()
+            config.enable_custom_device("gcu")
+            config.enable_new_ir(True)
+            config.enable_new_executor(True)
+            kPirGcuPasses = gcu_passes.inference_passes(
+                use_pir=True, name="PaddleClas"
+            )
+            config.enable_custom_passes(kPirGcuPasses, True)
         else:
             config.disable_gpu()
             if args.enable_mkldnn:
