@@ -55,11 +55,9 @@ class Predictor(object):
             ) is False, "int8 mode is not supported for fp32 model inference, please set use_int8 as False during inference."
 
         # NOTE: paddle support to PIR mode after v2.6.0
-        pd_version = 0
-        for v in paddle.__version__.split(".")[:3]:
-            pd_version = 10 * pd_version + eval(v)
-
-        if pd_version == 0 or pd_version >= 260:
+        major_v, minor_v, _ = paddle.__version__.split(".")[:3]
+        major_v, minor_v = int(major_v), int(minor_v)
+        if (major_v == 0 and minor_v == 0) or (major_v == 2 and minor_v >= 6) or (major_v >= 3):
             config = Config(inference_model_dir, model_prefix)
         else:
             model_file = os.path.join(inference_model_dir, f"{model_prefix}.pdmodel")
