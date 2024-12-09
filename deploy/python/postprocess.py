@@ -55,7 +55,7 @@ def parse_class_id_map(class_id_map_file, delimiter):
         with open(class_id_map_file, "r") as fin:
             lines = fin.readlines()
             for line in lines:
-                partition = line.split("\n")[0].partition(delimiter)
+                partition = line.strip().split("\n")[0].partition(delimiter)
                 class_id_map[int(partition[0])] = str(partition[-1])
     except Exception as ex:
         print(ex)
@@ -298,13 +298,13 @@ class PersonAttribute(object):
         for res in batch_preds:
             res = res.tolist()
             label_res = []
-            # gender 
+            # gender
             gender = 'Female' if res[22] > self.threshold else 'Male'
             label_res.append(gender)
             # age
             age = age_list[np.argmax(res[19:22])]
             label_res.append(age)
-            # direction 
+            # direction
             direction = direct_list[np.argmax(res[23:])]
             label_res.append(direction)
             # glasses
