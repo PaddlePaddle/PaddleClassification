@@ -57,7 +57,7 @@ class Predictor(object):
         # NOTE: paddle support to PIR mode after v2.6.0
         major_v, minor_v, _ = paddle.__version__.split(".")[:3]
         major_v, minor_v = int(major_v), int(minor_v)
-        if (major_v == 0 and minor_v == 0) or (major_v == 2 and minor_v >= 6) or (major_v >= 3):
+        if (major_v == 0 and minor_v == 0) or (major_v >= 3):
             config = Config(inference_model_dir, model_prefix)
         else:
             model_file = os.path.join(inference_model_dir, f"{model_prefix}.pdmodel")
