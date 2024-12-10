@@ -66,8 +66,12 @@ def face_recognition_eval(engine, epoch_id=0):
                 [images_right, paddle.flip(images_right, axis=-1)], 0)
 
         with engine.auto_cast(is_eval=True):
-            out_left = engine.model(images_left)
-            out_right = engine.model(images_right)
+            if engine.is_rec:
+                out_left = engine.model(images_left, labels.reshape([-1, 1]))
+                out_right = engine.model(images_right, labels.reshape([-1, 1]))
+            else:
+                out_left = engine.model(images_left)
+                out_right = engine.model(images_right)
 
         # get features
         if engine.config["Global"].get("retrieval_feature_from",
@@ -150,3 +154,4 @@ def face_recognition_eval(engine, epoch_id=0):
         return -1
     # return 1st metric in the dict
     return engine.eval_metric_func.avg
+
