@@ -46,7 +46,7 @@ logger.init_logger()
 
 __all__ = ["PaddleClas"]
 
-BASE_DIR = os.path.expanduser("~/.paddleclas/")
+BASE_DIR = os.path.expanduser(os.path.join("~", ".paddleclas"))
 BASE_INFERENCE_MODEL_DIR = os.path.join(BASE_DIR, "inference_model")
 BASE_IMAGES_DIR = os.path.join(BASE_DIR, "images")
 IMN_MODEL_BASE_DOWNLOAD_URL = "https://paddle-imagenet-models-name.bj.bcebos.com/dygraph/inference/{}_infer.tar"
