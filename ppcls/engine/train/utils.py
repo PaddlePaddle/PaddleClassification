@@ -52,8 +52,9 @@ def log_info(trainer, batch_size, epoch_id, iter_id):
         for key in trainer.time_info
     ])
 
-    ips_msg = "ips: {:.5f} samples/s".format(
-        batch_size / trainer.time_info["batch_cost"].avg)
+    avg = trainer.time_info["batch_cost"].avg
+    ips = batch_size / avg if avg != 0 else float("inf")
+    ips_msg = "ips: {:.5f} samples/s".format(ips)
 
     global_epochs = trainer.config["Global"]["epochs"]
     eta_sec = (
