@@ -1,7 +1,6 @@
 prettytable
 ujson
-opencv-python<=4.6.0.66; python_version<"3.13"
-opencv-python>=4.10.0.84; python_version>="3.13"
+opencv-python<=4.6.0.66
 pillow>=9.0.0
 tqdm
 PyYAML>=5.1
@@ -12,5 +11,4 @@ gast==0.3.3
 faiss-cpu
 easydict
 numpy==1.24.4; python_version<"3.13"
-numpy>=2.1.0; python_version>="3.13"
-
+numpy==1.26.4; python_version>="3.13"
