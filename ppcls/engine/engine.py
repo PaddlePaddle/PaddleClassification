@@ -22,6 +22,7 @@ import platform
 import paddle
 import paddle.distributed as dist
 from visualdl import LogWriter
+from packaging import version
 from paddle import nn
 import numpy as np
 import random
@@ -105,7 +106,8 @@ class Engine(object):
 
         # set device
         assert self.config["Global"]["device"] in [
-            "cpu", "gpu", "xpu", "npu", "mlu", "ascend", "intel_gpu", "mps", "gcu"
+            "cpu", "gpu", "xpu", "npu", "mlu", "ascend", "intel_gpu", "mps",
+            "gcu"
         ]
         self.device = paddle.set_device(self.config["Global"]["device"])
         logger.info('train with paddle {} and device {}'.format(
@@ -156,7 +158,9 @@ class Engine(object):
 
         if self.mode == "eval" or (self.mode == "train" and
                                    self.config["Global"]["eval_during_train"]):
-            if self.eval_mode in ["classification", "adaface", "face_recognition"]:
+            if self.eval_mode in [
+                    "classification", "adaface", "face_recognition"
+            ]:
                 self.eval_dataloader = build_dataloader(
                     self.config["DataLoader"], "Eval", self.device,
                     self.use_dali)
@@ -225,8 +229,8 @@ class Engine(object):
                 self.eval_metric_func = build_metrics(metric_config)
             elif self.eval_mode == "face_recognition":
                 if "Metric" in self.config and "Eval" in self.config["Metric"]:
-                    self.eval_metric_func = build_metrics(self.config["Metric"]
-                                                          ["Eval"])
+                    self.eval_metric_func = build_metrics(self.config["Metric"][
+                        "Eval"])
         else:
             self.eval_metric_func = None
 
@@ -581,6 +585,14 @@ class Engine(object):
         else:
             save_path = os.path.join(save_path, "inference")
 
+        if self.config["Global"].get("export_for_fd",
+                                     False) or uniform_output_enabled:
+            dst_path = os.path.join(os.path.dirname(save_path), 'inference.yml')
+            if not os.path.exists(os.path.dirname(dst_path)):
+                os.makedirs(os.path.dirname(dst_path))
+            dump_infer_config(self.config, dst_path,
+                              self.config["Global"]["image_shape"])
+
         model = paddle.jit.to_static(
             model,
             input_spec=[
@@ -588,17 +600,43 @@ class Engine(object):
                     shape=[None] + self.config["Global"]["image_shape"],
                     dtype='float32')
             ])
+
         if hasattr(model.base_model,
                    "quanter") and model.base_model.quanter is not None:
             model.base_model.quanter.save_quantized_model(model,
                                                           save_path + "_int8")
         else:
-            paddle.jit.save(model, save_path)
-        if self.config["Global"].get("export_for_fd",
-                                     False) or uniform_output_enabled:
-            dst_path = os.path.join(os.path.dirname(save_path), 'inference.yml')
-            dump_infer_config(self.config, dst_path,
-                              self.config["Global"]["image_shape"])
+            paddle_version = version.parse(paddle.__version__)
+            if (paddle_version >= version.parse('3.0.0b2') or paddle_version ==
+                    version.parse('0.0.0')) and os.environ.get(
+                        "FLAGS_enable_pir_api", None) not in ["0", "False"]:
+                save_path = os.path.dirname(save_path)
+                for enable_pir in [True, False]:
+                    if not enable_pir:
+                        save_path_no_pir = os.path.join(save_path, "inference")
+                        model.forward.rollback()
+                        with paddle.pir_utils.OldIrGuard():
+                            model = paddle.jit.to_static(
+                                model,
+                                input_spec=[
+                                    paddle.static.InputSpec(
+                                        shape=[None] +
+                                        self.config["Global"]["image_shape"],
+                                        dtype='float32')
+                                ])
+                            paddle.jit.save(model, save_path_no_pir)
+                    else:
+                        save_path_pir = os.path.join(
+                            os.path.dirname(save_path),
+                            f"{os.path.basename(save_path)}_pir", "inference")
+                        paddle.jit.save(model, save_path_pir)
+                        shutil.copy(
+                            dst_path,
+                            os.path.join(
+                                os.path.dirname(save_path_pir),
+                                os.path.basename(dst_path)), )
+            else:
+                paddle.jit.save(model, save_path)
         logger.info(
             f"Export succeeded! The inference model exported has been saved in \"{save_path}\"."
         )
