@@ -562,3 +562,4 @@ PaddleClas 提供了基于 Paddle2ONNX 来完成 inference 模型转换 ONNX 模
       primaryClass={cs.CV}
 }
 ```
+
