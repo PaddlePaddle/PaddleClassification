@@ -645,7 +645,7 @@ class Engine(object):
             self.auto_cast = AutoCast(use_amp)
             self.scaler = build_scaler(use_amp)
         else:
-            AMP_RELATED_FLAGS_SETTING = {'FLAGS_max_inplace_grad_add': 8, }
+            AMP_RELATED_FLAGS_SETTING = {}
             if paddle.is_compiled_with_cuda():
                 AMP_RELATED_FLAGS_SETTING.update({
                     'FLAGS_cudnn_batchnorm_spatial_persistent': 1
