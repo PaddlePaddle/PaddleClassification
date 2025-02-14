@@ -78,8 +78,8 @@ MLDecoder:
 | PP-LCNet_x1_0_ml_decoder_448 | PP-LCNet_x1_0 |  448x448   |  77.96%  | [config](./PP-LCNet_x1_0_ml_decoder_448.yaml) |
 | PP-HGNetV2-B0_ml_decoder_448 | PP-HGNetV2-B0 |  448x448   |  80.98%  | [config](./PP-HGNetV2-B0_ml_decoder_448.yaml) |
 | PP-HGNetV2-B4_ml_decoder_448 | PP-HGNetV2-B4 |  448x448   |  87.96%   | [config](./PP-HGNetV2-B4_ml_decoder_448.yaml) |
-| PP-HGNetV2-B6_ml_decoder_448 | PP-HGNetV2-B6 |  448x448   |  91.25%  | [config](./PP-HGNetV2-B6_ml_decoder_448.yaml) |
-| ResNet50_ml_decoder_448 | ResNet50 |  448x448   |  83.50%  | [config](./ResNet50_ml_decoder_448.yaml) |
+| PP-HGNetV2-B6_ml_decoder_448 | PP-HGNetV2-B6 |  448x448   |  91.06%  | [config](./PP-HGNetV2-B6_ml_decoder_448.yaml) |
+| ResNet50_ml_decoder_448 | ResNet50 |  448x448   |  83.42%  | [config](./ResNet50_ml_decoder_448.yaml) |
 | ResNet101_ml_decoder | ResNet101 |  448x448   |  91.40%   | [config](./ResNet101_ml_decoder_448.yaml) |
 | CLIP_vit_base_patch16_448_ml_decoder_448 | CLIP_vit_base_patch16_448 |  448x448   |  89.15%   | [config](./CLIP_vit_base_patch16_448_ml_decoder_448.yaml) |
 
