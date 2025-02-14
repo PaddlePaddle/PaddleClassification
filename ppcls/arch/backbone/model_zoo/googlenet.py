@@ -50,9 +50,11 @@ class ConvLayer(nn.Layer):
                  groups=1,
                  act=None,
                  name=None,
-                 data_format="NCHW"):
+                 data_format="NCHW",
+                 insert_bn=True):
         super(ConvLayer, self).__init__()
 
+        self.insert_bn = insert_bn
         self._conv = Conv2D(
             in_channels=num_channels,
             out_channels=num_filters,
@@ -63,9 +65,15 @@ class ConvLayer(nn.Layer):
             weight_attr=ParamAttr(name=name + "_weights"),
             bias_attr=False,
             data_format=data_format)
+        if insert_bn:
+            self._bn = BatchNorm(
+                num_channels=num_filters,
+                param_attr=ParamAttr(name=name + "_bn"))
 
     def forward(self, inputs):
         y = self._conv(inputs)
+        if self.insert_bn:
+            y = self._bn(y)
         return y
 
 
@@ -80,7 +88,8 @@ class Inception(nn.Layer):
                  filter5,
                  proj,
                  name=None,
-                 data_format="NCHW"):
+                 data_format="NCHW",
+                 insert_bn=True):
         super(Inception, self).__init__()
         self.data_format = data_format
 
@@ -89,31 +98,36 @@ class Inception(nn.Layer):
             filter1,
             1,
             name="inception_" + name + "_1x1",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._conv3r = ConvLayer(
             input_channels,
             filter3R,
             1,
             name="inception_" + name + "_3x3_reduce",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._conv3 = ConvLayer(
             filter3R,
             filter3,
             3,
             name="inception_" + name + "_3x3",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._conv5r = ConvLayer(
             input_channels,
             filter5R,
             1,
             name="inception_" + name + "_5x5_reduce",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._conv5 = ConvLayer(
             filter5R,
             filter5,
             5,
             name="inception_" + name + "_5x5",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._pool = MaxPool2D(
             kernel_size=3, stride=1, padding=1, data_format=data_format)
 
@@ -122,7 +136,8 @@ class Inception(nn.Layer):
             proj,
             1,
             name="inception_" + name + "_3x3_proj",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
 
     def forward(self, inputs):
         conv1 = self._conv1(inputs)
@@ -145,17 +160,33 @@ class Inception(nn.Layer):
 
 
 class GoogLeNetDY(nn.Layer):
-    def __init__(self, class_num=1000, data_format="NCHW"):
+    def __init__(self, class_num=1000, data_format="NCHW", insert_bn=True):
         super(GoogLeNetDY, self).__init__()
         self.data_format = data_format
         self._conv = ConvLayer(
-            3, 64, 7, 2, name="conv1", data_format=data_format)
+            3,
+            64,
+            7,
+            2,
+            name="conv1",
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._pool = MaxPool2D(
             kernel_size=3, stride=2, data_format=data_format)
         self._conv_1 = ConvLayer(
-            64, 64, 1, name="conv2_1x1", data_format=data_format)
+            64,
+            64,
+            1,
+            name="conv2_1x1",
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._conv_2 = ConvLayer(
-            64, 192, 3, name="conv2_3x3", data_format=data_format)
+            64,
+            192,
+            3,
+            name="conv2_3x3",
+            data_format=data_format,
+            insert_bn=insert_bn)
 
         self._ince3a = Inception(
             192,
@@ -167,7 +198,8 @@ class GoogLeNetDY(nn.Layer):
             32,
             32,
             name="ince3a",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._ince3b = Inception(
             256,
             256,
@@ -178,7 +210,8 @@ class GoogLeNetDY(nn.Layer):
             96,
             64,
             name="ince3b",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
 
         self._ince4a = Inception(
             480,
@@ -190,7 +223,8 @@ class GoogLeNetDY(nn.Layer):
             48,
             64,
             name="ince4a",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._ince4b = Inception(
             512,
             512,
@@ -201,7 +235,8 @@ class GoogLeNetDY(nn.Layer):
             64,
             64,
             name="ince4b",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._ince4c = Inception(
             512,
             512,
@@ -212,7 +247,8 @@ class GoogLeNetDY(nn.Layer):
             64,
             64,
             name="ince4c",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._ince4d = Inception(
             512,
             512,
@@ -223,7 +259,8 @@ class GoogLeNetDY(nn.Layer):
             64,
             64,
             name="ince4d",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._ince4e = Inception(
             528,
             528,
@@ -234,7 +271,8 @@ class GoogLeNetDY(nn.Layer):
             128,
             128,
             name="ince4e",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
 
         self._ince5a = Inception(
             832,
@@ -246,7 +284,8 @@ class GoogLeNetDY(nn.Layer):
             128,
             128,
             name="ince5a",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._ince5b = Inception(
             832,
             832,
@@ -257,7 +296,8 @@ class GoogLeNetDY(nn.Layer):
             128,
             128,
             name="ince5b",
-            data_format=data_format)
+            data_format=data_format,
+            insert_bn=insert_bn)
 
         self._pool_5 = AdaptiveAvgPool2D(1, data_format=data_format)
 
@@ -271,7 +311,12 @@ class GoogLeNetDY(nn.Layer):
         self._pool_o1 = AvgPool2D(
             kernel_size=5, stride=3, data_format=data_format)
         self._conv_o1 = ConvLayer(
-            512, 128, 1, name="conv_o1", data_format=data_format)
+            512,
+            128,
+            1,
+            name="conv_o1",
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._fc_o1 = Linear(
             1152,
             1024,
@@ -286,7 +331,12 @@ class GoogLeNetDY(nn.Layer):
         self._pool_o2 = AvgPool2D(
             kernel_size=5, stride=3, data_format=data_format)
         self._conv_o2 = ConvLayer(
-            528, 128, 1, name="conv_o2", data_format=data_format)
+            528,
+            128,
+            1,
+            name="conv_o2",
+            data_format=data_format,
+            insert_bn=insert_bn)
         self._fc_o2 = Linear(
             1152,
             1024,
