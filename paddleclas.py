@@ -27,6 +27,7 @@ import numpy as np
 from tqdm import tqdm
 from prettytable import PrettyTable
 import paddle
+import paddle
 
 from .ppcls.arch import backbone
 from .ppcls.utils import logger
