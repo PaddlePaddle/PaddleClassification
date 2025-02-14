@@ -1,0 +1,107 @@
+# global configs
+Global:
+  checkpoints: null
+  pretrained_model: "ViT-B-32.pdparams" # pretrain model for ram and ram plus, default random initilize
+  output_dir: ./output/
+  device: cpu
+  save_interval: 1
+  eval_during_train: True
+  eval_interval: 1
+  epochs: 120
+  print_batch_step: 1
+  use_visualdl: False
+  # used for static mode and model export
+  image_shape: [3, 224, 224]
+  export_shape: [77]
+  export_type: "int64"
+  save_inference_dir: ./inference_text
+
+
+
+# model architecture
+Arch:
+  name: CLIP_vit_base_patch32_224_with_TextEncoder
+  clip: "text"
+
+Loss:
+  Train:
+    - ContrastiveLoss:
+        margin: 1.0
+        embedding_size: 512
+        is_text_image_pairs: True
+        weight: 1.0
+  Eval:
+    - ContrastiveLoss:
+        margin: 1.0
+        embedding_size: 512
+        is_text_image_pairs: True
+        weight: 1.0
+
+Optimizer:
+  name: AdamW
+  beta1: 0.9
+  beta2: 0.999
+  epsilon: 1e-8
+  weight_decay: 0.05
+  layerwise_decay: 0.6
+  filter_bias_and_bn: True
+  lr:
+    name: Cosine
+    learning_rate: 0.0004
+    eta_min: 1e-6
+    warmup_epoch: 10
+    warmup_start_lr: 5e-7
+
+# data loader for train and eval
+DataLoader:
+  Train:
+    dataset:
+      name: Img2Dataset
+      root_path: "./mscoco"
+      split: "train"
+      transform:        
+        - ResizeImage:
+            size: 224
+            interpolation: bicubic
+            backend: pil
+        - NormalizeImage:
+            scale: 1.0/255.0
+            mean: [0.48145466, 0.4578275, 0.40821073]
+            std: [0.26862954, 0.26130258, 0.27577711]
+            order: ''
+        - ToCHWImage:
+
+    sampler:
+      name: DistributedBatchSampler
+      batch_size: 1
+      drop_last: False
+      shuffle: True
+    loader:
+      num_workers: 4
+      use_shared_memory: True
+
+  Eval:
+    dataset:
+      name: Img2Dataset
+      root_path: "./mscoco"
+      split: "eval"
+      transform:        
+        - ResizeImage:
+            size: 224
+            interpolation: bicubic
+            backend: pil
+        - NormalizeImage:
+            scale: 1.0/255.0
+            mean: [0.48145466, 0.4578275, 0.40821073]
+            std: [0.26862954, 0.26130258, 0.27577711]
+            order: ''
+        - ToCHWImage:
+
+    sampler:
+      name: DistributedBatchSampler
+      batch_size: 1
+      drop_last: False
+      shuffle: True
+    loader:
+      num_workers: 4
+      use_shared_memory: True

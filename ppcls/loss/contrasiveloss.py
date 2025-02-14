@@ -20,6 +20,7 @@ from typing import Dict
 
 import paddle
 import paddle.nn as nn
+from paddle.nn import functional as F
 from ppcls.loss.xbm import CrossBatchMemory
 
 
@@ -39,6 +40,7 @@ class ContrastiveLoss(nn.Layer):
                  embedding_size: int,
                  normalize_feature=True,
                  epsilon: float=1e-5,
+                 is_text_image_pairs=False,
                  feature_from: str="features"):
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
@@ -46,9 +48,43 @@ class ContrastiveLoss(nn.Layer):
         self.normalize_feature = normalize_feature
         self.epsilon = epsilon
         self.feature_from = feature_from
+        self.is_text_image_pairs = is_text_image_pairs
+        self.prev_num_logits = 0
+        self.labels = {}
+        self.world_size = 1
+        self.cache_labels = False
+        self.rank = 0
+        self.local_loss = False
+
+    def text_image_pairs_constrative_loss(self, logits_per_image,
+                                          logits_per_text, labels):
+        device = logits_per_image.place
+        label = self.get_ground_truth(device, logits_per_image.shape[0])
+        total_loss = (F.cross_entropy(logits_per_image, label) +
+                      F.cross_entropy(logits_per_text, label)) / 2
+
+        return {"Contrastive_loss": total_loss}
+    
+    def get_ground_truth(self, device, num_logits) -> paddle.Tensor:
+        # calculated ground-truth and cache if enabled
+        if self.prev_num_logits != num_logits or device not in self.labels:
+            labels = paddle.arange(num_logits, dtype=paddle.int64)
+            if self.world_size > 1 and self.local_loss:
+                labels = labels + num_logits * self.rank
+            if self.cache_labels:
+                self.labels[device] = labels
+                self.prev_num_logits = num_logits
+        else:
+            labels = self.labels[device]
+        return labels
 
     def forward(self, input: Dict[str, paddle.Tensor],
                 target: paddle.Tensor) -> Dict[str, paddle.Tensor]:
+
+        if self.is_text_image_pairs:
+            return self.text_image_pairs_constrative_loss(
+                input["image"], input["text"], target)
+
         feats = input[self.feature_from]
         labels = target
 

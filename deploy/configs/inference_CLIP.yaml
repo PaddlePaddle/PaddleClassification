@@ -1,0 +1,52 @@
+Global:
+  infer_imgs: "docs/images/inference_deployment/whl_demo.jpg"
+  texts: "text_prompts.txt"
+  inference_image_encoder_dir: "./inference_image"
+  inference_text_encoder_dir: "./inference_text"
+  batch_size: 1
+  mode: "text-to-image"
+  use_gpu: False
+  embedding_size: 512
+  enable_mkldnn: False
+  cpu_num_threads: 10
+  enable_benchmark: True
+  use_fp16: False
+  ir_optim: False # do not set it as True since there is a bug which leads the invaild initilize for predictor
+  use_tensorrt: False
+  gpu_mem: 8000
+  enable_profile: False
+
+PreProcess:
+  transform_ops:
+    - ResizeImage:
+        size: 224
+    - CropImage:
+        size: 224
+    - NormalizeImage:
+        scale: 1.0/255.0
+        mean: [0.48145466, 0.4578275, 0.40821073]
+        std: [0.26862954, 0.26130258, 0.27577711]
+        order: ""
+        channel_num: 3
+    - ToCHWImage:
+
+PostProcess:
+  main_indicator: RamOutPut
+  RamOutPut:
+    language: "en"
+    tag_list: "ppcls/utils/ram/ram_tag_list.txt"
+    tag_list_chinese: "ppcls/utils/ram/ram_tag_list_chinese.txt"
+    ram_class_threshold_path: "ppcls/utils/ram/ram_tag_list_threshold.txt"
+
+
+IndexProcess:
+  index_method: "HNSW32" # supported: HNSW32, IVF, Flat
+  image_index_dir: "./clip_image"
+  text_index_dir: "./clip_text"
+  index_operation: "new" # suported: "append", "remove", "new"
+  delimiter: "\t"
+  dist_type: "IP"
+  embedding_size: 512
+  batch_size: 1
+  return_k: 1
+  score_thres: 0.5

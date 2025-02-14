@@ -14,3 +14,4 @@ from ppcls.data.dataloader.face_dataset import FaceEvalDataset, FiveFaceEvalData
 from ppcls.data.dataloader.custom_label_dataset import CustomLabelDataset
 from ppcls.data.dataloader.cifar import Cifar10, Cifar100
 from ppcls.data.dataloader.metabin_sampler import DomainShuffleBatchSampler, NaiveIdentityBatchSampler
+from ppcls.data.dataloader.ram_dataset import RAMPretrainDataset

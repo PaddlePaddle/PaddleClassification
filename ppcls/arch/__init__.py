@@ -20,6 +20,7 @@ from paddle.static import InputSpec
 
 from . import backbone, gears
 from .backbone import *
+from .ram import *
 from .gears import build_gear, add_ml_decoder_head
 from .utils import *
 from .backbone.base.theseus_layer import TheseusLayer
