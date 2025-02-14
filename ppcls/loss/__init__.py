@@ -21,6 +21,7 @@ from .ccssl_loss import CCSSLCELoss
 from .pairwisecosface import PairwiseCosface
 from .dmlloss import DMLLoss
 from .distanceloss import DistanceLoss
+from .ramloss import RAMLoss
 from .softtargetceloss import SoftTargetCrossEntropy
 from .distillationloss import DistillationCELoss
 from .distillationloss import DistillationGTCELoss
@@ -70,7 +71,7 @@ class CombinedLoss(nn.Layer):
         loss_dict = {}
         # just for accelerate classification traing speed
         if len(self.loss_func) == 1:
-            loss = self.loss_func[0](input, batch)
+            loss = self.loss_func[0](*input, batch)
             loss_dict.update(loss)
             loss_dict["loss"] = list(loss.values())[0]
         else:

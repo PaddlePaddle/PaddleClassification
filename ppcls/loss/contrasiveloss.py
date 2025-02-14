@@ -20,6 +20,7 @@ from typing import Dict
 
 import paddle
 import paddle.nn as nn
+from paddle.nn import functional as F
 from ppcls.loss.xbm import CrossBatchMemory
 
 
@@ -39,6 +40,7 @@ class ContrastiveLoss(nn.Layer):
                  embedding_size: int,
                  normalize_feature=True,
                  epsilon: float=1e-5,
+                 is_text_image_pairs=False,
                  feature_from: str="features"):
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
@@ -46,9 +48,22 @@ class ContrastiveLoss(nn.Layer):
         self.normalize_feature = normalize_feature
         self.epsilon = epsilon
         self.feature_from = feature_from
+        self.is_text_image_pairs = is_text_image_pairs
+
+    def text_image_pairs_constrative_loss(self, logits_per_image,
+                                          logits_per_text, labels):
+        total_loss = (F.cross_entropy(logits_per_image, labels) +
+                      F.cross_entropy(logits_per_text, labels)) / 2
+
+        return {"Contrastive_loss": total_loss}
 
     def forward(self, input: Dict[str, paddle.Tensor],
                 target: paddle.Tensor) -> Dict[str, paddle.Tensor]:
+
+        if self.is_text_image_pairs:
+            return self.text_image_pairs_constrative_loss(
+                input["image"], input["text"], target)
+
         feats = input[self.feature_from]
         labels = target
 
