@@ -1,7 +1,7 @@
 # 快速开始
 
 >**❗ 说明：**
->* 飞桨低代码开发工具[PaddleX](https://github.com/PaddlePaddle/PaddleX/tree/release/3.0-beta1)，依托于PaddleClas的先进技术，支持了图像分类和检索领域的**低代码全流程**开发能力。通过低代码全流程开发，可实现简单且高效的模型使用、组合与定制。
+>* 飞桨低代码开发工具[PaddleX](https://github.com/PaddlePaddle/PaddleX/tree/release/3.0-beta2)，依托于PaddleClas的先进技术，支持了图像分类和检索领域的**低代码全流程**开发能力。通过低代码全流程开发，可实现简单且高效的模型使用、组合与定制。
 >* PaddleX 致力于实现产线级别的模型训练、推理与部署。模型产线是指一系列预定义好的、针对特定AI任务的开发流程，其中包含能够独立完成某类任务的单模型（单功能模块）组合。本文档提供**图像分类和检索相关产线**的快速使用，单功能模块的快速使用以及更多功能请参考[PaddleClas低代码全流程开发](./overview.md)中相关章节。
 
 
@@ -27,7 +27,7 @@ python -m pip install paddlepaddle-gpu==3.0.0b1 -i https://www.paddlepaddle.org.
 pip install https://paddle-model-ecology.bj.bcebos.com/paddlex/whl/paddlex-3.0.0b1-py3-none-any.whl
 ```
 
-> ❗ 更多安装方式参考[PaddleX安装教程](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/installation/installation.md)
+> ❗ 更多安装方式参考[PaddleX安装教程](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta2/docs/installation/installation.md)
 ### 💻 命令行使用
 
 一行命令即可快速体验产线效果，统一的命令行格式为：
@@ -62,7 +62,8 @@ paddlex --pipeline image_classification --input https://paddle-model-ecology.bj.
 | 产线名称      | 使用命令                                                                                                                                                                                             |
 |-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 通用图像分类    | `paddlex --pipeline image_classification --input https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_image_classification_001.jpg --device gpu:0`                           |
-| 通用图像多标签分类 | `paddlex --pipeline multi_label_image_classification --input https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/general_image_classification_001.jpg --device gpu:0`                                          |
+| 行人属性识别    | `paddlex --pipeline pedestrian_attribute_recognition --input https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/pedestrian_attribute_002.jpg --device gpu:0`            |
+| 车辆属性识别    | `paddlex --pipeline vehicle_attribute_recognition --input https://paddle-model-ecology.bj.bcebos.com/paddlex/imgs/demo_image/vehicle_attribute_002.jpg --device gpu:0`            |
 
 
 
@@ -93,7 +94,10 @@ for res in output:
 
 | 产线名称           | 对应参数               | 详细说明                                                                                                      |
 |--------------------|------------------------|---------------------------------------------------------------------------------------------------------------|
-| 通用图像分类       | `image_classification` | [通用图像分类产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/pipeline_usage/tutorials/cv_pipelines/image_classification.md) |
-| 通用图像多标签分类 | `multi_label_image_classification` | [通用图像多标签分类产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta1/docs/pipeline_usage/tutorials/cv_pipelines/image_multi_label_classification.md) |
+| 通用图像分类       | `image_classification` | [通用图像分类产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta2/docs/pipeline_usage/tutorials/cv_pipelines/image_classification.md) |
+| 通用图像多标签分类 | `multi_label_image_classification` | [通用图像多标签分类产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta2/docs/pipeline_usage/tutorials/cv_pipelines/image_multi_label_classification.md) |
+| 通用图像识别 | `PP-ShiTuV2` | [通用图像识别产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta2/docs/pipeline_usage/tutorials/cv_pipelines/general_image_recognition.md) |
+| 行人属性识别 | `pedestrian_attribute_recognition` | [行人属性识别产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta2/docs/pipeline_usage/tutorials/cv_pipelines/pedestrian_attribute_recognition.md) |
+| 车辆属性识别 | `vehicle_attribute_recognition` | [车辆属性识别产线 Python 脚本使用说明](https://github.com/PaddlePaddle/PaddleX/blob/release/3.0-beta2/docs/pipeline_usage/tutorials/cv_pipelines/vehicle_attribute_recognition.md) |
 
 
